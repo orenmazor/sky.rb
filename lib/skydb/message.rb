@@ -126,4 +126,5 @@ class SkyDB
 end
 
 require 'skydb/message/type'
+require 'skydb/message/aadd'
 require 'skydb/message/eadd'

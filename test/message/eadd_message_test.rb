@@ -1,12 +1,14 @@
 # encoding: binary
-require 'minitest/autorun'
-require 'skydb'
 require 'test_helper'
 
 class TestMessageEADD < MiniTest::Unit::TestCase
   def setup
     @message = SkyDB::Message::EADD.new()
   end
+  
+  ######################################
+  # Object ID
+  ######################################
   
   def test_object_id
     @message.object_id = 12
@@ -18,6 +20,22 @@ class TestMessageEADD < MiniTest::Unit::TestCase
     assert_equal 0, @message.object_id
   end
   
+
+  ######################################
+  # Timestamp
+  ######################################
+  
+  def test_timestamp_with_time
+    @message.timestamp = Time.now
+    refute_nil @message.timestamp
+  end
+  
+  def test_invalid_timestamp
+    @message.object_id = "foo"
+    assert_nil @message.timestamp
+  end
+
+
   def test_encode
     buffer = StringIO.new
     @message.database = "foo"

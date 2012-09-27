@@ -1,3 +1,6 @@
+require 'minitest/autorun'
+require 'skydb'
+
 class MiniTest::Unit::TestCase
   def assert_bytes exp, act, msg = nil
     exp = exp.to_hex

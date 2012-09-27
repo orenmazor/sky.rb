@@ -1,6 +1,4 @@
 # encoding: binary
-require 'minitest/autorun'
-require 'skydb'
 require 'test_helper'
 
 class TestMessage < MiniTest::Unit::TestCase
