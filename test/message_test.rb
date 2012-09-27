@@ -1,5 +1,4 @@
 # encoding: binary
-
 require 'minitest/autorun'
 require 'skydb'
 require 'test_helper'
