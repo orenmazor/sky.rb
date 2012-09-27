@@ -1,7 +1,8 @@
+require 'msgpack'
+
+require 'skydb/client'
+require 'skydb/message'
 require 'skydb/version'
 
 class SkyDB
-  def hello
-    return "hello!"
-  end
 end
