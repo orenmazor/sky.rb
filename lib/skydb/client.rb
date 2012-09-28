@@ -103,6 +103,18 @@ class SkyDB
     def eadd(event, options={})
       return send_message(SkyDB::Message::EADD.new(event, options))
     end
+
+
+    ####################################
+    # Path Messages
+    ####################################
+
+    # Executes a query against each path on the server.
+    #
+    # @param [String] query  the query to execute.
+    def peach(query, options={})
+      return send_message(SkyDB::Message::PEACH.new(query, options))
+    end
     
 
     ####################################

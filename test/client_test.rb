@@ -72,4 +72,13 @@ class TestClient < MiniTest::Unit::TestCase
     @client.eadd event
   end
 
+
+  ######################################
+  # Path Messages
+  ######################################
+
+  def test_peach
+    @client.expects(:send_message).with(is_a(SkyDB::Message::PEACH))
+    @client.peach "foo"
+  end
 end

@@ -8,8 +8,11 @@ class SkyDB
       ########################################################################
 
       # Initializes the 'path each' message.
-      def initialize()
+      #
+      # @param [String] query  the query to execute.
+      def initialize(query=nil, options={})
         super(Type::PEACH)
+        self.query = query
       end
 
 
