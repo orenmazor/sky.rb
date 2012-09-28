@@ -126,10 +126,14 @@ class SkyDB
 end
 
 require 'skydb/message/type'
+
 require 'skydb/message/aadd'
 require 'skydb/message/aall'
 require 'skydb/message/aget'
-require 'skydb/message/eadd'
+
 require 'skydb/message/padd'
 require 'skydb/message/pall'
 require 'skydb/message/pget'
+
+require 'skydb/message/eadd'
+require 'skydb/message/peach'
