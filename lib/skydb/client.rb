@@ -73,7 +73,7 @@ class SkyDB
     # Property Messages
     ####################################
 
-    # Adds an property to the server.
+    # Adds a property to the server.
     #
     # @param [Property] property  the property to add.
     def padd(property, options={})
@@ -92,6 +92,18 @@ class SkyDB
       return send_message(SkyDB::Message::PALL.new(options))
     end
 
+
+    ####################################
+    # Event Messages
+    ####################################
+
+    # Adds an event to the server.
+    #
+    # @param [Event] event  the event to add.
+    def eadd(event, options={})
+      return send_message(SkyDB::Message::EADD.new(event, options))
+    end
+    
 
     ####################################
     # Send

@@ -4,6 +4,7 @@ require 'socket'
 
 require 'skydb/action'
 require 'skydb/client'
+require 'skydb/event'
 require 'skydb/message'
 require 'skydb/property'
 require 'skydb/timestamp'

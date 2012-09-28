@@ -60,4 +60,16 @@ class TestClient < MiniTest::Unit::TestCase
     @client.expects(:send_message).with(is_a(SkyDB::Message::PALL))
     @client.pall
   end
+
+
+  ######################################
+  # Event Messages
+  ######################################
+
+  def test_eadd
+    event = SkyDB::Event.new
+    @client.expects(:send_message).with(is_a(SkyDB::Message::EADD))
+    @client.eadd event
+  end
+
 end
