@@ -29,6 +29,6 @@ class TestMessagePEACH < MiniTest::Unit::TestCase
     buffer = StringIO.new
     @message.query = "foo"
     @message.encode(buffer)
-    assert_bytes "\x95\x01\xce\x00\x02\x00\x06\x04\xa0\xa0\xa3foo", buffer
+    assert_bytes "\x95\x01\xa5peach\x04\xa0\xa0\xa3foo", buffer
   end
 end

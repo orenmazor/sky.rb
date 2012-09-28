@@ -11,7 +11,7 @@ class SkyDB
       #
       # @param [String] query  the query to execute.
       def initialize(query=nil, options={})
-        super(Type::PEACH)
+        super('peach')
         self.query = query
       end
 

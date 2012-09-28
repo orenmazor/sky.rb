@@ -13,6 +13,6 @@ class TestMessagePALL < MiniTest::Unit::TestCase
   def test_encode
     buffer = StringIO.new
     @message.encode(buffer)
-    assert_bytes "\x95\x01\xce\x00\x04\x00\x05\x00\xa0\xa0", buffer
+    assert_bytes "\x95\x01\xa4pall\x00\xa0\xa0", buffer
   end
 end

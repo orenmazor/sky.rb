@@ -11,7 +11,7 @@ class SkyDB
       #
       # @param [Property] property  the property to add.
       def initialize(property=nil, options={})
-        super(Type::PADD)
+        super('padd')
         self.property = property
       end
 

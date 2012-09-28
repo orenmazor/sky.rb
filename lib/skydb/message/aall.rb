@@ -9,7 +9,7 @@ class SkyDB
 
       # Initializes the 'action all' message.
       def initialize(options={})
-        super(Type::AALL)
+        super('aall')
       end
 
 

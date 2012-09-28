@@ -11,7 +11,7 @@ class SkyDB
       #
       # @param [Event] event  the event to add.
       def initialize(event=nil, options={})
-        super(Type::EADD)
+        super('eadd')
         self.event = event
       end
 

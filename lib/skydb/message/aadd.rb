@@ -9,7 +9,7 @@ class SkyDB
 
       # Initializes the 'action add' message.
       def initialize(action=nil, options={})
-        super(Type::AADD)
+        super('aadd')
         self.action = action
       end
 

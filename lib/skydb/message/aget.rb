@@ -11,7 +11,7 @@ class SkyDB
       #
       # @param [Fixnum] action_id  the identifier of the action to retrieve.
       def initialize(action_id=nil, options={})
-        super(Type::AGET)
+        super('aget')
         self.action_id = action_id
       end
 

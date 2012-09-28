@@ -18,8 +18,8 @@ class SkyDB
     ##########################################################################
 
     # Initializes the message.
-    def initialize(type)
-      @type = type
+    def initialize(name)
+      @name = name
       @database = ""
       @table = ""
     end
@@ -32,11 +32,11 @@ class SkyDB
     ##########################################################################
 
     ####################################
-    # Type
+    # Name
     ####################################
 
-    # The type of message being sent. This is defined by the subclass.
-    attr_reader :type
+    # The name of message being sent. This is defined by the subclass.
+    attr_reader :name
 
 
     ####################################
@@ -97,7 +97,7 @@ class SkyDB
     def encode_header(buffer, length)
       buffer << [
         SkyDB::Message::VERSION,
-        type,
+        name,
         length,
         database,
         table
@@ -124,8 +124,6 @@ class SkyDB
     end
   end
 end
-
-require 'skydb/message/type'
 
 require 'skydb/message/aadd'
 require 'skydb/message/aall'
