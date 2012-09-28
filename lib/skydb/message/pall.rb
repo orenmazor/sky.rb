@@ -8,7 +8,7 @@ class SkyDB
       ########################################################################
 
       # Initializes the 'property all' message.
-      def initialize()
+      def initialize(options={})
         super(Type::PALL)
       end
 

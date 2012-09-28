@@ -8,8 +8,11 @@ class SkyDB
       ########################################################################
 
       # Initializes the 'property add' message.
-      def initialize()
+      #
+      # @param [Property] property  the property to add.
+      def initialize(property=nil, options={})
         super(Type::PADD)
+        self.property = property
       end
 
 

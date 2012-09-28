@@ -8,8 +8,11 @@ class SkyDB
       ########################################################################
 
       # Initializes the 'property get' message.
-      def initialize()
+      #
+      # @param [Fixnum] property_id  The identifier for the property to retrieve.
+      def initialize(property_id=nil, options={})
         super(Type::PGET)
+        self.property_id = property_id
       end
 
 

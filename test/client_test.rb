@@ -18,4 +18,46 @@ class TestClient < MiniTest::Unit::TestCase
     @message.expects(:process_response).with("foo").returns("bar")
     assert_equal 'bar', @client.send_message(@message)
   end
+
+
+  ######################################
+  # Action Messages
+  ######################################
+
+  def test_aadd
+    action = SkyDB::Action.new
+    @client.expects(:send_message).with(is_a(SkyDB::Message::AADD))
+    @client.aadd action
+  end
+
+  def test_aget
+    @client.expects(:send_message).with(is_a(SkyDB::Message::AGET))
+    @client.aget 12
+  end
+
+  def test_aall
+    @client.expects(:send_message).with(is_a(SkyDB::Message::AALL))
+    @client.aall
+  end
+
+
+  ######################################
+  # Property Messages
+  ######################################
+
+  def test_padd
+    property = SkyDB::Property.new
+    @client.expects(:send_message).with(is_a(SkyDB::Message::PADD))
+    @client.padd property
+  end
+
+  def test_aget
+    @client.expects(:send_message).with(is_a(SkyDB::Message::PGET))
+    @client.pget 12
+  end
+
+  def test_aall
+    @client.expects(:send_message).with(is_a(SkyDB::Message::PALL))
+    @client.pall
+  end
 end

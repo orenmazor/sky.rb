@@ -45,13 +45,64 @@ class SkyDB
     #
     ##########################################################################
     
+    ####################################
+    # Action Messages
+    ####################################
+
+    # Adds an action to the server.
+    #
+    # @param [Action] action  the action to add.
+    def aadd(action, options={})
+      return send_message(SkyDB::Message::AADD.new(action, options))
+    end
+
+    # Retrieves an individual action from the server.
+    #
+    # @param [Fixnum] action_id  the identifier of the action to retrieve.
+    def aget(action_id, options={})
+      return send_message(SkyDB::Message::AGET.new(action_id, options))
+    end
+
+    # Retrieves a list of all actions from the server.
+    def aall(options={})
+      return send_message(SkyDB::Message::AALL.new(options))
+    end
+
+
+    ####################################
+    # Property Messages
+    ####################################
+
+    # Adds an property to the server.
+    #
+    # @param [Property] property  the property to add.
+    def padd(property, options={})
+      return send_message(SkyDB::Message::PADD.new(property, options))
+    end
+
+    # Retrieves an individual property from the server.
+    #
+    # @param [Fixnum] property_id  the identifier of the property to retrieve.
+    def pget(property_id, options={})
+      return send_message(SkyDB::Message::PGET.new(property_id, options))
+    end
+
+    # Retrieves a list of all properties from the server.
+    def pall(options={})
+      return send_message(SkyDB::Message::PALL.new(options))
+    end
+
+
+    ####################################
+    # Send
+    ####################################
+
     # Sends a message to the server.
     #
     # @param [SkyDB::Message] message  the message to send.
     # @return [Object]  the object returned by the server.
     def send_message(message)
       # Connect to the server.
-      puts "XXXXX #{host}:#{port.to_i}"
       socket = TCPSocket.new(host, port.to_i)
       
       # Encode and send message request.
