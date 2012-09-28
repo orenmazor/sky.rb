@@ -7,7 +7,10 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
+    metaclass (0.0.1)
     minitest (3.5.0)
+    mocha (0.12.5)
+      metaclass (~> 0.0.1)
     msgpack (0.4.7)
     rake (0.9.2.2)
 
@@ -16,5 +19,6 @@ PLATFORMS
 
 DEPENDENCIES
   minitest (~> 3.5.0)
+  mocha (~> 0.12.5)
   rake (~> 0.9.2.2)
   skydb!

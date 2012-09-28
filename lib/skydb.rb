@@ -1,5 +1,6 @@
 require 'date'
 require 'msgpack'
+require 'socket'
 
 require 'skydb/action'
 require 'skydb/client'

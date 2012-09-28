@@ -113,14 +113,14 @@ class SkyDB
 
 
     ####################################
-    # Decoding
+    # Response processing
     ####################################
 
-    # Decodes the message contents from a buffer.
+    # Performs any necessary post-processing on the response.
     #
-    # @param [IO] buffer  the buffer to read from.
-    def decode(buffer)
-      # TODO
+    # @param [Object] response  
+    def process_response(response)
+      return response
     end
   end
 end

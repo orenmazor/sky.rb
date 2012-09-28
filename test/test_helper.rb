@@ -1,4 +1,5 @@
 require 'minitest/autorun'
+require 'mocha'
 require 'skydb'
 
 class MiniTest::Unit::TestCase
