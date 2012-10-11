@@ -70,6 +70,23 @@ class SkyDB
     ##########################################################################
 
     ####################################
+    # Validation
+    ####################################
+
+    # Validates that the message is ready to be sent. If any validation issues
+    # are found then an error is raised.
+    def validate!
+      if database.nil? || database.empty?
+        raise SkyDB::DatabaseRequiredError.new('Database required')
+      end
+      
+      if table.nil? || table.empty?
+        raise SkyDB::TableRequiredError.new('Table required')
+      end
+    end
+
+
+    ####################################
     # Encoding
     ####################################
 
@@ -87,6 +104,9 @@ class SkyDB
       encode_header(buffer, body.length)
       buffer << body.string
       
+      # Debugging
+      $stderr << "[#{name}]: #{body.string.to_hex}\n" if SkyDB.debug
+
       return nil
     end
 

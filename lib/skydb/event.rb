@@ -91,12 +91,13 @@ class SkyDB
     
     # Encodes the event into MsgPack format.
     def to_msgpack
-      return {
-          :objectId => object_id,
-          :timestamp => SkyDB::Timestamp.to_timestamp(timestamp),
-          :actionId => action_id,
-          :data => data
-        }.to_msgpack
+      obj = {
+        :objectId => object_id,
+        :timestamp => SkyDB::Timestamp.to_timestamp(timestamp),
+        :actionId => action_id
+      }
+      obj[:data] = data unless data.nil? || data.empty?
+      return obj.to_msgpack
     end
   end
 end

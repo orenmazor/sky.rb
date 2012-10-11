@@ -27,7 +27,7 @@ class TestMessageAADD < MiniTest::Unit::TestCase
 
   def test_encode
     buffer = StringIO.new
-    @message.action = SkyDB::Action.new(0, "foo")
+    @message.action = SkyDB::Action.new(:id => 0, :name => "foo")
     @message.encode(buffer)
     assert_bytes "\x95\x01\xa4aadd\x0e\xa0\xa0\x82\xa2id\x00\xa4name\xa3foo", buffer
   end

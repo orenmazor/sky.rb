@@ -10,12 +10,47 @@ require 'skydb/property'
 require 'skydb/timestamp'
 require 'skydb/version'
 
+require 'ext/string'
+
 class SkyDB
+  ############################################################################
+  #
+  # Errors
+  #
+  ############################################################################
+
+  class DatabaseRequiredError < StandardError; end
+  class TableRequiredError < StandardError; end
+
+  class ObjectIdRequiredError < StandardError; end
+  class TimestampRequiredError < StandardError; end
+
+  ############################################################################
+  #
+  # Constants
+  #
+  ############################################################################
+
+  CLIENT_PASSTHROUGH = [
+    :host, :host=, :port, :port=,
+    :database, :database=, :table, :table=,
+    :eadd, :peach, :aadd, :aall, :aget, :padd, :pall, :pget
+  ]
+  
+  
   ############################################################################
   #
   # Static Attributes
   #
   ############################################################################
+
+  ######################################
+  # Debugging
+  ######################################
+
+  class << self
+    attr_accessor :debug
+  end
 
   ######################################
   # Default Client
@@ -40,7 +75,7 @@ class SkyDB
 
   def self.method_missing(method, *args)
     method = method
-    if [:eadd, :peach, :aadd, :aall, :aget, :padd, :pall, :pget].include?(method.to_sym)
+    if CLIENT_PASSTHROUGH.include?(method.to_sym)
       client.__send__(method.to_sym, *args)
     else
       raise NoMethodError.new("Message type not available: #{method}")

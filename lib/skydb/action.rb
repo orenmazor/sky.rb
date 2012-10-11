@@ -7,9 +7,9 @@ class SkyDB
     ##########################################################################
 
     # Initializes the action.
-    def initialize(id=0, name=nil)
-      self.id = id
-      self.name = name
+    def initialize(options={})
+      self.id = options[:id]
+      self.name = options[:name]
     end
     
 

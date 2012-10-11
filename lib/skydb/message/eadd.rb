@@ -41,6 +41,23 @@ class SkyDB
       ##########################################################################
 
       ####################################
+      # Validation
+      ####################################
+
+      def validate!
+        super
+        
+        if !(event.object_id > 0)
+          raise SkyDB::ObjectIdRequiredError.new('Object ID required')
+        end
+        
+        if event.timestamp.nil?
+          raise SkyDB::TimestampRequiredError.new('Timestamp required')
+        end
+      end
+
+
+      ####################################
       # Encoding
       ####################################
 
