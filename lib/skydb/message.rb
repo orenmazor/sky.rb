@@ -154,4 +154,4 @@ require 'skydb/message/pall'
 require 'skydb/message/pget'
 
 require 'skydb/message/eadd'
-require 'skydb/message/peach'
+require 'skydb/message/next_action'

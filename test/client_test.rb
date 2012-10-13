@@ -8,19 +8,6 @@ class TestClient < MiniTest::Unit::TestCase
   end
   
   ######################################
-  # Send
-  ######################################
-
-  def test_send_message
-    socket = StringIO.new("\xa3foo")
-    TCPSocket.expects(:new).with('127.0.0.1', 9000).returns(socket)
-    @message.expects(:encode).with(socket)
-    @message.expects(:process_response).with("foo").returns("bar")
-    assert_equal 'bar', @client.send_message(@message)
-  end
-
-
-  ######################################
   # Action Messages
   ######################################
 
@@ -74,11 +61,11 @@ class TestClient < MiniTest::Unit::TestCase
 
 
   ######################################
-  # Path Messages
+  # Query Messages
   ######################################
 
-  def test_peach
-    @client.expects(:send_message).with(is_a(SkyDB::Message::PEACH))
-    @client.peach "foo"
+  def test_next_action
+    @client.expects(:send_message).with(is_a(SkyDB::Message::NextAction))
+    @client.next_action [1, 2]
   end
 end

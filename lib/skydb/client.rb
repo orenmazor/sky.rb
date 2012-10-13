@@ -115,11 +115,12 @@ class SkyDB
     # Path Messages
     ####################################
 
-    # Executes a query against each path on the server.
+    # Finds a count of the action that occurs immediately after a set of
+    # actions.
     #
-    # @param [String] query  the query to execute.
-    def peach(query, options={})
-      return send_message(SkyDB::Message::PEACH.new(query, options))
+    # @param [Array] prior_action_ids  the prior action ids to match on.
+    def next_action(prior_action_ids, options={})
+      return send_message(SkyDB::Message::NextAction.new(prior_action_ids, options))
     end
     
 

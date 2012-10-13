@@ -34,7 +34,7 @@ class SkyDB
   CLIENT_PASSTHROUGH = [
     :host, :host=, :port, :port=,
     :database, :database=, :table, :table=,
-    :eadd, :peach, :aadd, :aall, :aget, :padd, :pall, :pget
+    :eadd, :next_action, :aadd, :aall, :aget, :padd, :pall, :pget
   ]
   
   

@@ -1,18 +1,18 @@
 class SkyDB
   class Message
-    class PEACH < SkyDB::Message
+    class NextAction < SkyDB::Message
       ########################################################################
       #
       # Constructor
       #
       ########################################################################
 
-      # Initializes the 'path each' message.
+      # Initializes the 'next action' message.
       #
-      # @param [String] query  the query to execute.
-      def initialize(query=nil, options={})
-        super('peach')
-        self.query = query
+      # @param [Array] prior_action_ids  the prior action ids.
+      def initialize(prior_action_ids=nil, options={})
+        super('next_action')
+        self.prior_action_ids = prior_action_ids
       end
 
 
@@ -23,14 +23,14 @@ class SkyDB
       ##########################################################################
 
       ##################################
-      # Query
+      # Prior Action IDs
       ##################################
 
-      # The query to execute over each path.
-      attr_reader :query
+      # The prior action ids.
+      attr_reader :prior_action_ids
       
-      def query=(value)
-        @query = value.to_s
+      def prior_action_ids=(value)
+        @prior_action_ids = value.is_a?(Array) ? value : []
       end
 
 
@@ -48,7 +48,7 @@ class SkyDB
       #
       # @param [IO] buffer  the buffer to write the header to.
       def encode_body(buffer)
-        buffer << query.to_msgpack
+        buffer << prior_action_ids.to_msgpack
       end
     end
   end
