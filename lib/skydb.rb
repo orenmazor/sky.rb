@@ -34,7 +34,7 @@ class SkyDB
   CLIENT_PASSTHROUGH = [
     :host, :host=, :port, :port=,
     :database, :database=, :table, :table=,
-    :eadd, :next_action, :aadd, :aall, :aget, :padd, :pall, :pget
+    :eadd, :next_action, :aadd, :aall, :aget, :padd, :pall, :pget, :multi
   ]
   
   
@@ -73,10 +73,10 @@ class SkyDB
   #
   ############################################################################
 
-  def self.method_missing(method, *args)
+  def self.method_missing(method, *args, &block)
     method = method
     if CLIENT_PASSTHROUGH.include?(method.to_sym)
-      client.__send__(method.to_sym, *args)
+      client.__send__(method.to_sym, *args, &block)
     else
       raise NoMethodError.new("Message type not available: #{method}")
     end

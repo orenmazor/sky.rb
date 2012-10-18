@@ -155,3 +155,5 @@ require 'skydb/message/pget'
 
 require 'skydb/message/eadd'
 require 'skydb/message/next_action'
+
+require 'skydb/message/multi'

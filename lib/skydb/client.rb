@@ -122,6 +122,35 @@ class SkyDB
     def next_action(prior_action_ids, options={})
       return send_message(SkyDB::Message::NextAction.new(prior_action_ids, options))
     end
+
+    ####################################
+    # Multi message
+    ####################################
+
+    # Executes multiple messages in one call.
+    def multi(options={})
+      raise "Already in a multi-message block" unless @multi_message.nil?
+      
+      # Create multi-message.
+      @multi_message = SkyDB::Message::Multi.new(options)
+      
+      # Execute the block normally and send the message.
+      begin
+        yield
+        
+        # Clear multi message so it doesn't add to itself.
+        tmp = @multi_message
+        @multi_message = nil
+        
+        # Send all messages at once.
+        send_message(tmp)
+
+      ensure
+        @multi_message = nil
+      end
+      
+      return nil
+    end
     
 
     ####################################
@@ -140,30 +169,39 @@ class SkyDB
       # Validate message before sending.
       message.validate!
       
-      # Connect to the server.
-      socket = TCPSocket.new(host, port.to_i)
+      # If this is part of a multi message then simply append the message for
+      # later sending.
+      if !@multi_message.nil?
+        @multi_message.messages << message
+        return nil
       
-      # Encode and send message request.
-      message.encode(socket)
+      # Otherwise send the message immediately.
+      else
+        # Connect to the server.
+        socket = TCPSocket.new(host, port.to_i)
       
-      # Decode msgpack response. There should only be one return object.
-      response = nil
-      unpacker = MessagePack::Unpacker.new(socket)
-      unpacker.each do |obj|
-        response = obj
-        break
+        # Encode and send message request.
+        message.encode(socket)
+      
+        # Decode msgpack response. There should only be one return object.
+        response = nil
+        unpacker = MessagePack::Unpacker.new(socket)
+        unpacker.each do |obj|
+          response = obj
+          break
+        end
+      
+        # Close socket.
+        socket.close()
+      
+        # TODO: Exception processing.
+      
+        # Process response back through the message.
+        response = message.process_response(response)
+      
+        # Return response.
+        return response
       end
-      
-      # Close socket.
-      socket.close()
-      
-      # TODO: Exception processing.
-      
-      # Process response back through the message.
-      response = message.process_response(response)
-      
-      # Return response.
-      return response
     end
   end
 end
