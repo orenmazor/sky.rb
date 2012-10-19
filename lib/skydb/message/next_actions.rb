@@ -1,18 +1,18 @@
 class SkyDB
   class Message
-    class PADD < SkyDB::Message
+    class NextActions < SkyDB::Message
       ########################################################################
       #
       # Constructor
       #
       ########################################################################
 
-      # Initializes the 'property add' message.
+      # Initializes the 'next action' message.
       #
-      # @param [Property] property  the property to add.
-      def initialize(property=nil, options={})
-        super('padd')
-        self.property = property
+      # @param [Array] prior_action_ids  the prior action ids.
+      def initialize(prior_action_ids=nil, options={})
+        super('next_actions')
+        self.prior_action_ids = prior_action_ids
       end
 
 
@@ -23,14 +23,14 @@ class SkyDB
       ##########################################################################
 
       ##################################
-      # Property
+      # Prior Action IDs
       ##################################
 
-      # The property to add.
-      attr_reader :property
+      # The prior action ids.
+      attr_reader :prior_action_ids
       
-      def property=(value)
-        @property = value if value.is_a?(Property)
+      def prior_action_ids=(value)
+        @prior_action_ids = value.is_a?(Array) ? value : []
       end
 
 
@@ -48,7 +48,7 @@ class SkyDB
       #
       # @param [IO] buffer  the buffer to write the header to.
       def encode_body(buffer)
-        buffer << property.to_msgpack
+        buffer << prior_action_ids.to_msgpack
       end
     end
   end

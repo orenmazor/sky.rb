@@ -1,18 +1,18 @@
 class SkyDB
   class Message
-    class NextAction < SkyDB::Message
+    class GetProperty < SkyDB::Message
       ########################################################################
       #
       # Constructor
       #
       ########################################################################
 
-      # Initializes the 'next action' message.
+      # Initializes the 'property get' message.
       #
-      # @param [Array] prior_action_ids  the prior action ids.
-      def initialize(prior_action_ids=nil, options={})
-        super('next_action')
-        self.prior_action_ids = prior_action_ids
+      # @param [Fixnum] property_id  The identifier for the property to retrieve.
+      def initialize(property_id=nil, options={})
+        super('get_property')
+        self.property_id = property_id
       end
 
 
@@ -23,14 +23,14 @@ class SkyDB
       ##########################################################################
 
       ##################################
-      # Prior Action IDs
+      # Property ID
       ##################################
 
-      # The prior action ids.
-      attr_reader :prior_action_ids
+      # The property identifier to retrieve.
+      attr_reader :property_id
       
-      def prior_action_ids=(value)
-        @prior_action_ids = value.is_a?(Array) ? value : []
+      def property_id=(value)
+        @property_id = value.to_i
       end
 
 
@@ -48,7 +48,7 @@ class SkyDB
       #
       # @param [IO] buffer  the buffer to write the header to.
       def encode_body(buffer)
-        buffer << prior_action_ids.to_msgpack
+        buffer << property_id.to_msgpack
       end
     end
   end

@@ -1,9 +1,9 @@
 # encoding: binary
 require 'test_helper'
 
-class TestMessageAALL < MiniTest::Unit::TestCase
+class TestMessageGetProperties < MiniTest::Unit::TestCase
   def setup
-    @message = SkyDB::Message::AALL.new()
+    @message = SkyDB::Message::GetProperties.new()
   end
   
   ######################################
@@ -13,6 +13,6 @@ class TestMessageAALL < MiniTest::Unit::TestCase
   def test_encode
     buffer = StringIO.new
     @message.encode(buffer)
-    assert_bytes "\x95\x01\xa4aall\x00\xa0\xa0", buffer
+    assert_bytes "\x95\x01\xaeget_properties\x00\xa0\xa0", buffer
   end
 end

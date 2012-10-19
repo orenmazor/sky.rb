@@ -1,18 +1,18 @@
 class SkyDB
   class Message
-    class PGET < SkyDB::Message
+    class GetAction < SkyDB::Message
       ########################################################################
       #
       # Constructor
       #
       ########################################################################
 
-      # Initializes the 'property get' message.
+      # Initializes the 'action get' message.
       #
-      # @param [Fixnum] property_id  The identifier for the property to retrieve.
-      def initialize(property_id=nil, options={})
-        super('pget')
-        self.property_id = property_id
+      # @param [Fixnum] action_id  the identifier of the action to retrieve.
+      def initialize(action_id=nil, options={})
+        super('get_action')
+        self.action_id = action_id
       end
 
 
@@ -23,14 +23,14 @@ class SkyDB
       ##########################################################################
 
       ##################################
-      # Property ID
+      # Action ID
       ##################################
 
-      # The property identifier to retrieve.
-      attr_reader :property_id
+      # The action identifier to retrieve.
+      attr_reader :action_id
       
-      def property_id=(value)
-        @property_id = value.to_i
+      def action_id=(value)
+        @action_id = value.to_i
       end
 
 
@@ -48,7 +48,7 @@ class SkyDB
       #
       # @param [IO] buffer  the buffer to write the header to.
       def encode_body(buffer)
-        buffer << property_id.to_msgpack
+        buffer << action_id.to_msgpack
       end
     end
   end

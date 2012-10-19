@@ -1,9 +1,9 @@
 # encoding: binary
 require 'test_helper'
 
-class TestMessageAGET < MiniTest::Unit::TestCase
+class TestMessageGetAction < MiniTest::Unit::TestCase
   def setup
-    @message = SkyDB::Message::AGET.new()
+    @message = SkyDB::Message::GetAction.new()
   end
   
   ######################################
@@ -29,6 +29,6 @@ class TestMessageAGET < MiniTest::Unit::TestCase
     buffer = StringIO.new
     @message.action_id = 10
     @message.encode(buffer)
-    assert_bytes "\x95\x01\xa4aget\x01\xa0\xa0\x0a", buffer
+    assert_bytes "\x95\x01\xaaget_action\x01\xa0\xa0\x0a", buffer
   end
 end

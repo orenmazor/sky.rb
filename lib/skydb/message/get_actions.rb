@@ -1,6 +1,6 @@
 class SkyDB
   class Message
-    class AALL < SkyDB::Message
+    class GetActions < SkyDB::Message
       ########################################################################
       #
       # Constructor
@@ -9,7 +9,7 @@ class SkyDB
 
       # Initializes the 'action all' message.
       def initialize(options={})
-        super('aall')
+        super('get_actions')
       end
 
 

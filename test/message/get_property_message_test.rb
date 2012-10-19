@@ -1,9 +1,9 @@
 # encoding: binary
 require 'test_helper'
 
-class TestMessagePGET < MiniTest::Unit::TestCase
+class TestMessageGetProperty < MiniTest::Unit::TestCase
   def setup
-    @message = SkyDB::Message::PGET.new()
+    @message = SkyDB::Message::GetProperty.new()
   end
   
   ######################################
@@ -29,6 +29,6 @@ class TestMessagePGET < MiniTest::Unit::TestCase
     buffer = StringIO.new
     @message.property_id = 10
     @message.encode(buffer)
-    assert_bytes "\x95\x01\xa4pget\x01\xa0\xa0\x0a", buffer
+    assert_bytes "\x95\x01\xacget_property\x01\xa0\xa0\x0a", buffer
   end
 end

@@ -145,15 +145,15 @@ class SkyDB
   end
 end
 
-require 'skydb/message/aadd'
-require 'skydb/message/aall'
-require 'skydb/message/aget'
+require 'skydb/message/add_action'
+require 'skydb/message/get_action'
+require 'skydb/message/get_actions'
 
-require 'skydb/message/padd'
-require 'skydb/message/pall'
-require 'skydb/message/pget'
+require 'skydb/message/add_property'
+require 'skydb/message/get_property'
+require 'skydb/message/get_properties'
 
 require 'skydb/message/eadd'
-require 'skydb/message/next_action'
+require 'skydb/message/next_actions'
 
 require 'skydb/message/multi'

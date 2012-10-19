@@ -1,9 +1,9 @@
 # encoding: binary
 require 'test_helper'
 
-class TestMessageAADD < MiniTest::Unit::TestCase
+class TestMessageAddAction < MiniTest::Unit::TestCase
   def setup
-    @message = SkyDB::Message::AADD.new()
+    @message = SkyDB::Message::AddAction.new()
   end
   
   ######################################
@@ -29,6 +29,6 @@ class TestMessageAADD < MiniTest::Unit::TestCase
     buffer = StringIO.new
     @message.action = SkyDB::Action.new(:id => 0, :name => "foo")
     @message.encode(buffer)
-    assert_bytes "\x95\x01\xa4aadd\x0e\xa0\xa0\x82\xa2id\x00\xa4name\xa3foo", buffer
+    assert_bytes "\x95\x01\xaaadd_action\x0e\xa0\xa0\x82\xa2id\x00\xa4name\xa3foo", buffer
   end
 end

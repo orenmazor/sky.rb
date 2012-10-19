@@ -1,15 +1,34 @@
 class SkyDB
   class Message
-    class PALL < SkyDB::Message
+    class AddAction < SkyDB::Message
       ########################################################################
       #
       # Constructor
       #
       ########################################################################
 
-      # Initializes the 'property all' message.
-      def initialize(options={})
-        super('pall')
+      # Initializes the 'action add' message.
+      def initialize(action=nil, options={})
+        super('add_action')
+        self.action = action
+      end
+
+
+      ##########################################################################
+      #
+      # Attributes
+      #
+      ##########################################################################
+
+      ##################################
+      # Action
+      ##################################
+
+      # The action to add.
+      attr_reader :action
+      
+      def action=(value)
+        @action = value if value.is_a?(Action)
       end
 
 
@@ -27,7 +46,7 @@ class SkyDB
       #
       # @param [IO] buffer  the buffer to write the header to.
       def encode_body(buffer)
-        # Do nothing.
+        buffer << action.to_msgpack
       end
     end
   end

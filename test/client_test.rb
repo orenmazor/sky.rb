@@ -11,20 +11,20 @@ class TestClient < MiniTest::Unit::TestCase
   # Action Messages
   ######################################
 
-  def test_aadd
+  def test_add_action
     action = SkyDB::Action.new
-    @client.expects(:send_message).with(is_a(SkyDB::Message::AADD))
-    @client.aadd action
+    @client.expects(:send_message).with(is_a(SkyDB::Message::AddAction))
+    @client.add_action(action)
   end
 
-  def test_aget
-    @client.expects(:send_message).with(is_a(SkyDB::Message::AGET))
-    @client.aget 12
+  def test_get_action
+    @client.expects(:send_message).with(is_a(SkyDB::Message::GetAction))
+    @client.get_action(12)
   end
 
-  def test_aall
-    @client.expects(:send_message).with(is_a(SkyDB::Message::AALL))
-    @client.aall
+  def test_get_actions
+    @client.expects(:send_message).with(is_a(SkyDB::Message::GetActions))
+    @client.get_actions
   end
 
 
@@ -32,20 +32,20 @@ class TestClient < MiniTest::Unit::TestCase
   # Property Messages
   ######################################
 
-  def test_padd
+  def test_add_property
     property = SkyDB::Property.new
-    @client.expects(:send_message).with(is_a(SkyDB::Message::PADD))
-    @client.padd property
+    @client.expects(:send_message).with(is_a(SkyDB::Message::AddProperty))
+    @client.add_property(property)
   end
 
-  def test_aget
-    @client.expects(:send_message).with(is_a(SkyDB::Message::PGET))
-    @client.pget 12
+  def test_get_property
+    @client.expects(:send_message).with(is_a(SkyDB::Message::GetProperty))
+    @client.get_property(12)
   end
 
-  def test_aall
-    @client.expects(:send_message).with(is_a(SkyDB::Message::PALL))
-    @client.pall
+  def test_get_properties
+    @client.expects(:send_message).with(is_a(SkyDB::Message::GetProperties))
+    @client.get_properties
   end
 
 
@@ -64,8 +64,8 @@ class TestClient < MiniTest::Unit::TestCase
   # Query Messages
   ######################################
 
-  def test_next_action
-    @client.expects(:send_message).with(is_a(SkyDB::Message::NextAction))
-    @client.next_action [1, 2]
+  def test_next_actions
+    @client.expects(:send_message).with(is_a(SkyDB::Message::NextActions))
+    @client.next_actions([1, 2])
   end
 end

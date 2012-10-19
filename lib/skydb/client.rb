@@ -58,20 +58,20 @@ class SkyDB
     # Adds an action to the server.
     #
     # @param [Action] action  the action to add.
-    def aadd(action, options={})
-      return send_message(SkyDB::Message::AADD.new(action, options))
+    def add_action(action, options={})
+      return send_message(SkyDB::Message::AddAction.new(action, options))
     end
 
     # Retrieves an individual action from the server.
     #
     # @param [Fixnum] action_id  the identifier of the action to retrieve.
-    def aget(action_id, options={})
-      return send_message(SkyDB::Message::AGET.new(action_id, options))
+    def get_action(action_id, options={})
+      return send_message(SkyDB::Message::GetAction.new(action_id, options))
     end
 
     # Retrieves a list of all actions from the server.
-    def aall(options={})
-      return send_message(SkyDB::Message::AALL.new(options))
+    def get_actions(options={})
+      return send_message(SkyDB::Message::GetActions.new(options))
     end
 
 
@@ -82,20 +82,20 @@ class SkyDB
     # Adds a property to the server.
     #
     # @param [Property] property  the property to add.
-    def padd(property, options={})
-      return send_message(SkyDB::Message::PADD.new(property, options))
+    def add_property(property, options={})
+      return send_message(SkyDB::Message::AddProperty.new(property, options))
     end
 
     # Retrieves an individual property from the server.
     #
     # @param [Fixnum] property_id  the identifier of the property to retrieve.
-    def pget(property_id, options={})
-      return send_message(SkyDB::Message::PGET.new(property_id, options))
+    def get_property(property_id, options={})
+      return send_message(SkyDB::Message::GetProperty.new(property_id, options))
     end
 
     # Retrieves a list of all properties from the server.
-    def pall(options={})
-      return send_message(SkyDB::Message::PALL.new(options))
+    def get_properties(options={})
+      return send_message(SkyDB::Message::GetProperties.new(options))
     end
 
 
@@ -119,8 +119,8 @@ class SkyDB
     # actions.
     #
     # @param [Array] prior_action_ids  the prior action ids to match on.
-    def next_action(prior_action_ids, options={})
-      return send_message(SkyDB::Message::NextAction.new(prior_action_ids, options))
+    def next_actions(prior_action_ids, options={})
+      return send_message(SkyDB::Message::NextActions.new(prior_action_ids, options))
     end
 
     ####################################
