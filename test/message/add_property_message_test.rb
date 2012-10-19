@@ -29,13 +29,13 @@ class TestMessageAddProperty < MiniTest::Unit::TestCase
     buffer = StringIO.new
     @message.property = SkyDB::Property.new(0, :object, 'Int', 'foo')
     @message.encode(buffer)
-    assert_bytes "\x95\x01\xacadd_property\x21\xa0\xa0\x84\xa2id\x00\xa4type\x01\xa8dataType\xa3Int\xa4name\xa3foo", buffer
+    assert_bytes "\x94\x01\xacadd_property\xa0\xa0\x84\xa2id\x00\xa4type\x01\xa8dataType\xa3Int\xa4name\xa3foo", buffer
   end
 
   def test_encode_action_property
     buffer = StringIO.new
     @message.property = SkyDB::Property.new(0, :action, 'Boolean', 'foo')
     @message.encode(buffer)
-    assert_bytes "\x95\x01\xacadd_property\x25\xa0\xa0\x84\xa2id\x00\xa4type\x02\xa8dataType\xa7Boolean\xa4name\xa3foo", buffer
+    assert_bytes "\x94\x01\xacadd_property\xa0\xa0\x84\xa2id\x00\xa4type\x02\xa8dataType\xa7Boolean\xa4name\xa3foo", buffer
   end
 end

@@ -17,6 +17,6 @@ class TestMessageMulti < MiniTest::Unit::TestCase
       SkyDB::Message::GetAction.new(200)
       ]
     @message.encode(buffer)
-    assert_bytes "\x95\x01\xa5multi\x26\xa0\xa0\x02" + "\x95\x01\xacget_property\x01\xa0\xa0\x0c" + "\x95\x01\xaaget_action\x02\xa0\xa0\xcc\xc8", buffer
+    assert_bytes "\x94\x01\xa5multi\xa0\xa0\x02" + "\x94\x01\xacget_property\xa0\xa0\x0c" + "\x94\x01\xaaget_action\xa0\xa0\xcc\xc8", buffer
   end
 end

@@ -96,13 +96,9 @@ class SkyDB
     def encode(buffer)
       buffer.set_encoding(Encoding::BINARY, Encoding::BINARY)
       
-      # Encode the body first to determine the size of the contents.
-      body = StringIO.new()
-      encode_body(body)
-      
-      # Encode the header and append the body.
-      encode_header(buffer, body.length)
-      buffer << body.string
+      # Encode the header and body.
+      encode_header(buffer)
+      encode_body(buffer)
       
       # Debugging
       $stderr << "[#{name}]: #{body.string.to_hex}\n" if SkyDB.debug
@@ -113,12 +109,10 @@ class SkyDB
     # Encodes the message header.
     #
     # @param [IO] buffer  the buffer to write the header to.
-    # @param [Fixnum] length  the length of the body, in bytes.
-    def encode_header(buffer, length)
+    def encode_header(buffer)
       buffer << [
         SkyDB::Message::VERSION,
         name,
-        length,
         database,
         table
         ].to_msgpack
