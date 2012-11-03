@@ -20,7 +20,6 @@ class SkyDB
     # Initializes the message.
     def initialize(name)
       @name = name
-      @database = ""
       @table = ""
     end
     
@@ -37,18 +36,6 @@ class SkyDB
 
     # The name of message being sent. This is defined by the subclass.
     attr_reader :name
-
-
-    ####################################
-    # Database
-    ####################################
-
-    # The name of the database the message is being sent to/from.
-    attr_reader :database
-    
-    def database=(value)
-      @database = value.to_s
-    end
 
 
     ####################################
@@ -76,10 +63,6 @@ class SkyDB
     # Validates that the message is ready to be sent. If any validation issues
     # are found then an error is raised.
     def validate!
-      if database.nil? || database.empty?
-        raise SkyDB::DatabaseRequiredError.new('Database required')
-      end
-      
       if table.nil? || table.empty?
         raise SkyDB::TableRequiredError.new('Table required')
       end
@@ -113,7 +96,6 @@ class SkyDB
       buffer << [
         SkyDB::Message::VERSION,
         name,
-        database,
         table
         ].to_msgpack
     end

@@ -29,6 +29,6 @@ class TestMessageNextActions < MiniTest::Unit::TestCase
     buffer = StringIO.new
     @message.prior_action_ids = [1, 2]
     @message.encode(buffer)
-    assert_bytes "\x94\x01\xacnext_actions\xa0\xa0\x92\x01\x02", buffer
+    assert_bytes "\x93\x01\xacnext_actions\xa0\x92\x01\x02", buffer
   end
 end

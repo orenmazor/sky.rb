@@ -19,7 +19,6 @@ class SkyDB
   #
   ############################################################################
 
-  class DatabaseRequiredError < StandardError; end
   class TableRequiredError < StandardError; end
 
   class ObjectIdRequiredError < StandardError; end
@@ -33,7 +32,7 @@ class SkyDB
 
   CLIENT_PASSTHROUGH = [
     :host, :host=, :port, :port=,
-    :database, :database=, :table, :table=,
+    :table, :table=,
     :eadd, :multi,
     :add_action, :get_action, :get_actions,
     :add_property, :get_property, :get_properties,

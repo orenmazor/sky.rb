@@ -29,6 +29,6 @@ class TestMessageGetProperty < MiniTest::Unit::TestCase
     buffer = StringIO.new
     @message.property_id = 10
     @message.encode(buffer)
-    assert_bytes "\x94\x01\xacget_property\xa0\xa0\x0a", buffer
+    assert_bytes "\x93\x01\xacget_property\xa0\x0a", buffer
   end
 end

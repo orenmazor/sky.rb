@@ -13,6 +13,6 @@ class TestMessageGetActions < MiniTest::Unit::TestCase
   def test_encode
     buffer = StringIO.new
     @message.encode(buffer)
-    assert_bytes "\x94\x01\xabget_actions\xa0\xa0", buffer
+    assert_bytes "\x93\x01\xabget_actions\xa0", buffer
   end
 end
