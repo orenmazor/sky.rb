@@ -1,6 +1,6 @@
 class SkyDB
   class Message
-    class EADD < SkyDB::Message
+    class AddEvent < SkyDB::Message
       ########################################################################
       #
       # Constructor
@@ -11,7 +11,7 @@ class SkyDB
       #
       # @param [Event] event  the event to add.
       def initialize(event=nil, options={})
-        super('eadd')
+        super('add_event')
         self.event = event
       end
 

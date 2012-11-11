@@ -8,8 +8,8 @@ class TestEvent < MiniTest::Unit::TestCase
   
   def test_missing_method
     message = mock(message)
-    SkyDB::Client.any_instance.expects(:eadd).with(message)
-    SkyDB.eadd(message)
+    SkyDB::Client.any_instance.expects(:add_event).with(message)
+    SkyDB.add_event(message)
   end
 
   def test_invalid_missing_method

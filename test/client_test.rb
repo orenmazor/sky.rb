@@ -53,10 +53,10 @@ class TestClient < MiniTest::Unit::TestCase
   # Event Messages
   ######################################
 
-  def test_eadd
+  def test_add_event
     event = SkyDB::Event.new
-    @client.expects(:send_message).with(is_a(SkyDB::Message::EADD))
-    @client.eadd event
+    @client.expects(:send_message).with(is_a(SkyDB::Message::AddEvent))
+    @client.add_event(event)
   end
 
 

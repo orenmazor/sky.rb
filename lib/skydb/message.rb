@@ -129,7 +129,5 @@ require 'skydb/message/add_property'
 require 'skydb/message/get_property'
 require 'skydb/message/get_properties'
 
-require 'skydb/message/eadd'
+require 'skydb/message/add_event'
 require 'skydb/message/next_actions'
-
-require 'skydb/message/multi'

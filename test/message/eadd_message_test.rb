@@ -1,9 +1,9 @@
 # encoding: binary
 require 'test_helper'
 
-class TestMessageEADD < MiniTest::Unit::TestCase
+class TestMessageAddEvent < MiniTest::Unit::TestCase
   def setup
-    @message = SkyDB::Message::EADD.new()
+    @message = SkyDB::Message::AddEvent.new()
   end
   
   ######################################
@@ -26,6 +26,6 @@ class TestMessageEADD < MiniTest::Unit::TestCase
       }
     )
     @message.encode(buffer)
-    assert_bytes "\x93\x01\xa4eadd\xa5users\x84\xa8objectId\x0c\xa9timestamp\xcf\x00\x04\x7c\x2b\xf9\x9b\x87\x00\xa8actionIdd\xa4data\x85\xa9my_string\xa3bar\xa6my_int\x0a\xa8my_float\xcb\x40Y\x06fffff\xa7my_true\xc3\xa8my_false\xc2", buffer
+    assert_bytes "\x93\x01\xa9add_event\xa5users\x84\xa8objectId\x0c\xa9timestamp\xcf\x00\x04\x7c\x2b\xf9\x9b\x87\x00\xa8actionIdd\xa4data\x85\xa9my_string\xa3bar\xa6my_int\x0a\xa8my_float\xcb\x40Y\x06fffff\xa7my_true\xc3\xa8my_false\xc2", buffer
   end
 end
