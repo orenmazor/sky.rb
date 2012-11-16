@@ -83,9 +83,6 @@ class SkyDB
       encode_header(buffer)
       encode_body(buffer)
       
-      # Debugging
-      $stderr << "[#{name}]: #{body.string.to_hex}\n" if SkyDB.debug
-
       return nil
     end
 

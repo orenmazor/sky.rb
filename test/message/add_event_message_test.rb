@@ -16,16 +16,20 @@ class TestMessageAddEvent < MiniTest::Unit::TestCase
     @message.event = SkyDB::Event.new(
       object_id: 12,
       timestamp:DateTime.parse('2010-01-02T10:30:20Z'),
-      action_id:100,
+      action: {
+        name:"/index.html",
+        astring:"foo",
+        aint:20
+      },
       data: {
-        my_string: "bar",
-        my_int: 10,
-        my_float: 100.1,
-        my_true: true,
-        my_false: false
+        ostring: "bar",
+        oint: 10,
+        odouble: 100.1,
+        otrue: true,
+        ofalse: false
       }
     )
     @message.encode(buffer)
-    assert_bytes "\x93\x01\xa9add_event\xa5users\x84\xa8objectId\x0c\xa9timestamp\xcf\x00\x04\x7c\x2b\xf9\x9b\x87\x00\xa8actionIdd\xa4data\x85\xa9my_string\xa3bar\xa6my_int\x0a\xa8my_float\xcb\x40Y\x06fffff\xa7my_true\xc3\xa8my_false\xc2", buffer
+    assert_bytes "\x93\x01\xa9add_event\xa5users\x84\xa8objectId\x0c\xa9timestamp\xcf\x00\x04\x7c\x2b\xf9\x9b\x87\x00\xa6action\x83\xa4name\xab\x2findex\x2ehtml\xa7astring\xa3foo\xa4aint\x14\xa4data\x85\xa7ostring\xa3bar\xa4oint\x0a\xa7odouble\xcb\x40Y\x06fffff\xa5otrue\xc3\xa6ofalse\xc2", buffer
   end
 end
