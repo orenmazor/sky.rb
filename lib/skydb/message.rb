@@ -129,4 +129,6 @@ require 'skydb/message/get_properties'
 require 'skydb/message/add_event'
 require 'skydb/message/next_actions'
 
+require 'skydb/message/lua/map_reduce'
+
 require 'skydb/message/multi'

@@ -120,6 +120,19 @@ class SkyDB
       return send_message(SkyDB::Message::NextActions.new(prior_action_ids, options))
     end
 
+
+    ####################################
+    # Lua Messages
+    ####################################
+
+    # Executes a Lua map/reduce job on the server and returns the results.
+    #
+    # @param [String] source  the Lua source code to execute
+    def map_reduce(source, options={})
+      return send_message(SkyDB::Message::Lua::MapReduce.new(source, options))
+    end
+
+
     ####################################
     # Multi message
     ####################################
