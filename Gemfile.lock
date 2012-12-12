@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    skydb (0.1.0)
+    skydb (0.2.0)
       msgpack (~> 0.4.7)
 
 GEM
