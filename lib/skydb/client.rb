@@ -122,6 +122,23 @@ class SkyDB
 
 
     ####################################
+    # Ping
+    ####################################
+
+    # Checks if the server is up and running.
+    #
+    # @returns [Boolean]  a flag stating if the server is running.
+    def ping(options={})
+      begin
+        send_message(SkyDB::Message::Ping.new(options))
+        return true
+      rescue
+        return false
+      end
+    end
+
+
+    ####################################
     # Lua Messages
     ####################################
 

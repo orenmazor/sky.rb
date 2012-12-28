@@ -60,10 +60,15 @@ class SkyDB
     # Validation
     ####################################
 
+    # A flag stating if the table is required for this type of message.
+    def require_table?
+      return true
+    end
+
     # Validates that the message is ready to be sent. If any validation issues
     # are found then an error is raised.
     def validate!
-      if table.nil? || table.empty?
+      if require_table? && (table.nil? || table.empty?)
         raise SkyDB::TableRequiredError.new('Table required')
       end
     end
@@ -131,4 +136,5 @@ require 'skydb/message/next_actions'
 
 require 'skydb/message/lua/map_reduce'
 
+require 'skydb/message/ping'
 require 'skydb/message/multi'
