@@ -134,7 +134,7 @@ require 'skydb/message/get_properties'
 require 'skydb/message/add_event'
 require 'skydb/message/next_actions'
 
-require 'skydb/message/lua/map_reduce'
+require 'skydb/message/lua/aggregate'
 
 require 'skydb/message/ping'
 require 'skydb/message/multi'

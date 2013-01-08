@@ -142,11 +142,11 @@ class SkyDB
     # Lua Messages
     ####################################
 
-    # Executes a Lua map/reduce job on the server and returns the results.
+    # Executes a Lua aggregation job on the server and returns the results.
     #
     # @param [String] source  the Lua source code to execute
-    def map_reduce(source, options={})
-      return send_message(SkyDB::Message::Lua::MapReduce.new(source, options))
+    def aggregate(source, options={})
+      return send_message(SkyDB::Message::Lua::Aggregate.new(source, options))
     end
 
 

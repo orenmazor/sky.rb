@@ -38,7 +38,7 @@ class SkyDB
     :add_action, :get_action, :get_actions,
     :add_property, :get_property, :get_properties,
     :next_actions,
-    :map_reduce
+    :aggregate
   ]
   
   

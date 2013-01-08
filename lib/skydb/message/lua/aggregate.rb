@@ -1,18 +1,18 @@
 class SkyDB
   class Message
     class Lua
-      class MapReduce < SkyDB::Message
+      class Aggregate < SkyDB::Message
         ########################################################################
         #
         # Constructor
         #
         ########################################################################
 
-        # Initializes the 'lua::map_reduce' message.
+        # Initializes the 'lua::aggregate' message.
         #
         # @param [String] source  the Lua source to execute.
         def initialize(source=nil, options={})
-          super('lua::map_reduce')
+          super('lua::aggregate')
           self.source = source
         end
 
