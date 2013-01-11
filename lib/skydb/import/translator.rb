@@ -43,7 +43,7 @@ class SkyDB
           @translate_function = nil
         elsif value.is_a?(Proc)
           @translate_function = value
-        elsif value.respond_to?(to_s)
+        elsif value.is_a?(String)
           @translate_function = eval("lambda { |input,output| #{value.to_s} }")
         else
           raise "Unable to convert #{value.class} to a translation function."
@@ -66,7 +66,7 @@ class SkyDB
       def translate(input, output)
         # If a translation function is set then use it.
         if !translate_function.nil?
-          translate_function(input, output)
+          translate_function.call(input, output)
         end
 
         # If the input field and output field are set then apply them.
