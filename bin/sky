@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+
+$:.unshift(File.join(File.dirname(File.expand_path(__FILE__)), '..', 'lib'))
+
+require 'rubygems'
+require 'sky'
+require 'commander/import'
+
+program :name, 'Sky'
+program :version, SkyDB::VERSION
+program :description, 'A multi-purpose utilty for the Sky database.'
+
+global_option('-h', '--host HOST', 'The Sky host to connect to.')
+global_option('-p', '--port PORT', 'The port that Sky is running on.')
+
+
+################################################################################
+# Import
+################################################################################
+
+command :import do |c|
+  c.syntax = 'sky import FILE'
+  c.description = 'Imports data from a text file into a Sky table.'
+  c.option('-t', '--table NAME', 'The name of the table to import to.')
+  c.option('-f', '--format NAME', 'The YAML format file to import with.')
+  c.when_called do|args, options|
+    importer = SkyDB::Importer.new()
+    importer.table_name = options.table || ask("Table: ")
+    importer.format = options.format || ask("Format: ")
+    importer.files = STDIN.tty? ? args : [STDIN]
+    importer.import()
+  end
+end

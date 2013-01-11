@@ -1,6 +1,8 @@
+require 'bundler/setup'
 require 'minitest/autorun'
 require 'mocha'
 require 'skydb'
+require 'skydb/import'
 
 class MiniTest::Unit::TestCase
   def assert_bytes exp, act, msg = nil
