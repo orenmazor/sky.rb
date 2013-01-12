@@ -1,6 +1,7 @@
 require 'bundler/setup'
 require 'minitest/autorun'
 require 'mocha'
+require 'unindentable'
 require 'skydb'
 require 'skydb/import'
 

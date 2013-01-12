@@ -70,7 +70,7 @@ class TestTranslator < MiniTest::Unit::TestCase
 
 
   def test_translate_function_string
-    SkyDB::Import::Translator.new(:translate_function => "output['data'] = input['foo'].to_i * 2")
+    SkyDB::Import::Translator.new(:output_field => 'data', :translate_function => "input['foo'].to_i * 2")
       .translate(@input, @output)
     assert_equal 2000, @output['data']
   end

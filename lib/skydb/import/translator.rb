@@ -31,7 +31,13 @@ class SkyDB
       attr_accessor :output_field
 
       # The format of the field (String, Integer, Float, Date).
-      attr_accessor :format
+      attr_reader :format
+      
+      def format=(value)
+        value = 'string' if value.nil?
+        value = 'int' if value == 'integer'
+        @format = value.to_s.downcase
+      end
 
       # The translation function to execute. This can be a Proc or it can be
       # a String that is evaluated into a proc with "input" and "output"
@@ -39,17 +45,27 @@ class SkyDB
       attr_reader :translate_function
       
       def translate_function=(value)
-        if value.nil?
-          @translate_function = nil
-        elsif value.is_a?(Proc)
-          @translate_function = value
-        elsif value.is_a?(String)
-          @translate_function = eval("lambda { |input,output| #{value.to_s} }")
-        else
+        # Only allow nils, procs & strings.
+        if !value.nil? && !value.is_a?(Proc) && !value.is_a?(String)
           raise "Unable to convert #{value.class} to a translation function."
         end
-      end
+        
+        # If this is a string then eval it into a proc.
+        if value.is_a?(String)
+          # If there is an output field set then make the lamda an assignment.
+          if output_field.nil?
+            @translate_function = eval("lambda { |input,output| #{value} }")
 
+          # If there's no output field set then it's free form.
+          else
+            @translate_function = eval("lambda { |input,output| output['#{output_field.gsub("'", "\\'")}'] = #{value.to_s} }")
+          end
+
+        # If this is a proc or a nil then just pass it through.
+        else
+          @translate_function = value
+        end
+      end
 
 
       ##########################################################################
@@ -74,10 +90,10 @@ class SkyDB
           value = input[input_field]
           
           output[output_field] = case format
-          when "Int" then value.to_i
-          when "Float" then value.to_f
-          when "Boolean" then value == "true"
-          when "Date" then Chronic.parse(value)
+          when "int" then value.to_i
+          when "float" then value.to_f
+          when "boolean" then value == "true"
+          when "date" then Chronic.parse(value)
           else value.to_s
           end
         end
