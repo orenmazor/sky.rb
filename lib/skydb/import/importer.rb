@@ -1,4 +1,5 @@
 require 'yaml'
+require 'csv'
 
 class SkyDB
   class Import
@@ -53,15 +54,56 @@ class SkyDB
       ##################################
     
       # Imports the rows from a list of files.
-      def import
-        # TODO: Read in the format file as a translator.
-        # TODO: Loop over each of the files.
-        # TODO:   Translate the row into a Sky event.
-        # TODO:   Send the event to the Sky server.
-        # TODO:   Update progress bar.
+      #
+      # @param [Array]  a list of files to import.
+      def import(files)
+        files = [files] unless files.is_a?(Array)
+        
+        # TODO: Initialize progress bar.
+        
+        # Loop over each of the files.
+        files.each do |file|
+          file = File.open(file, 'r')
+          begin
+            # Process each line of the CSV file.
+            CSV.foreach(file, :headers => true) do |input|
+              output = translate(input)
+              puts output
+              
+              # TODO: Send event to the Sky server.
+              # TODO: Update progress bar.
+            end
+          ensure
+            file.close
+          end
+        end
+        
+        # TODO: Finish progress bar.
+        
+        return nil
       end
 
 
+      ##################################
+      # Translation
+      ##################################
+
+      # Translates an input hash into an output hash using the translators.
+      #
+      # @param [Hash]  the input hash.
+      #
+      # @return [Hash]  the output hash.
+      def translate(input)
+        output = {}
+
+        translators.each do |translate|
+          translator.translate(input, output)
+        end
+
+        return output
+      end
+      
+      
       ##################################
       # Transform Management
       ##################################
