@@ -24,6 +24,7 @@ class TestTranslator < MiniTest::Unit::TestCase
   def test_string_translation
     SkyDB::Import::Translator.new(:input_field => 'myString', :output_field => 'data')
       .translate(@input, @output)
+    puts "!!! #{@output}"
     assert_equal 'hello world', @output['data']
   end
 
@@ -55,6 +56,17 @@ class TestTranslator < MiniTest::Unit::TestCase
     SkyDB::Import::Translator.new(:input_field => 'myDate', :output_field => 'data', :format => 'Date')
       .translate(@input, @output)
     assert_equal Time.parse('1982-10-26'), @output['data']
+  end
+
+
+  ######################################
+  # Nested Translation
+  ######################################
+
+  def test_nested_translation
+    SkyDB::Import::Translator.new(:input_field => 'myString', :output_field => ['action', 'data'])
+      .translate(@input, @output)
+    assert_equal 'hello world', @output['action']['data']
   end
 
 

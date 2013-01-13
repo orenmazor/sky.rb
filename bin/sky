@@ -22,9 +22,22 @@ command :import do |c|
   c.option('--table STRING', 'The name of the table to import to.')
   c.option('--format STRING', 'The YAML format file to import with.')
   c.when_called do|args, options|
+    # Setup importer.
     importer = SkyDB::Import::Importer.new()
     importer.table_name = options.table || ask("Table: ")
-    importer.format = options.format || ask("Format: ")
+    
+    # Load transform files by name.
+    formats = options.format || ask("Format: ")
+    formats.split(',').each do |format|
+      begin
+        importer.load_transform_file(format)
+      rescue SkyDB::Import::Importer::TransformNotFound => e
+        puts "ERROR: #{e.message}\n\n"
+        exit(1)
+      end
+    end
+    
+    # Import!
     importer.import(args)
   end
 end

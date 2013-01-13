@@ -6,6 +6,15 @@ class SkyDB
     class Importer
       ##########################################################################
       #
+      # Errors
+      #
+      ##########################################################################
+
+      class TransformNotFound < StandardError; end
+      
+
+      ##########################################################################
+      #
       # Constructor
       #
       ##########################################################################
@@ -96,7 +105,7 @@ class SkyDB
       def translate(input)
         output = {}
 
-        translators.each do |translate|
+        translators.each do |translator|
           translator.translate(input, output)
         end
 
@@ -114,35 +123,67 @@ class SkyDB
       def load_transform(content)
         # Parse the transform file.
         transform = {'fields' => {}}.merge(YAML.load(content))
+
+        load_transform_fields(transform['fields'])
+        
+        return nil
+      end
+
+      # Loads a hash of transforms.
+      #
+      # @param [Hash]  the hash of transform info.
+      # @param [Array]  the path of fields.
+      def load_transform_fields(fields, path=nil)
         
         # Convert each field to a translator.
-        transform['fields'].each_pair do |key, value|
-          translator = Translator.new(:output_field => key)
+        fields.each_pair do |key, value|
+          translator = Translator.new(:output_field => (path.nil? ? key : path.clone.concat([key])))
 
-          # If the line is wrapped in curly braces then generate a translate function.
-          m, code = *value.match(/^\s*\{(.*)\}\s*$/)
-          if !m.nil?
-            translator.translate_function = code
+          # Load a regular transform.
+          if value.is_a?(String)
+            # If the line is wrapped in curly braces then generate a translate function.
+            m, code = *value.match(/^\s*\{(.*)\}\s*$/)
+            if !m.nil?
+              translator.translate_function = code
           
-          # Otherwise it's a colon-separated field describing the input field and data type.
+            # Otherwise it's a colon-separated field describing the input field and data type.
+            else
+              input_field, format = *value.strip.split(":")
+              translator.input_field = input_field
+              translator.format = format
+            end
+
+          # If this field is a hash then load it as a nested transform.
+          elsif value.is_a?(Hash)
+            load_transform_fields(value, path.to_a.clone.flatten.concat([key]))
+          
           else
-            input_field, format = *value.strip.split(":")
-            translator.input_field = input_field
-            translator.format = format
+            raise "Invalid data type for '#{key}' in transform file: #{value.class}"
           end
           
           # Append to the list of translators.
           @translators << translator
         end
-        
-        return nil
       end
+
 
       # Parses and appends the contents of a transform file to the importer.
       #
       # @param [String]  the filename to load from.
       def load_transform_file(filename)
-        load_transform(IO.read(filename))
+        transforms_path = File.expand_path(File.join(File.dirname(__FILE__), 'transforms'))
+        named_transform_path = File.join(transforms_path, "#{filename}.yml")
+        
+        # If it's just a word then find it in the gem.
+        if filename.index(/^\w+$/)
+          raise TransformNotFound.new("Named transform not available: #{filename}") unless File.exists?(named_transform_path)
+          return load_transform(IO.read(named_transform_path))
+
+        # Otherwise load it from the present working directory.
+        else
+          raise TransformNotFound.new("Transform file not found: #{filename}") unless File.exists?(filename)
+          return load_transform(IO.read(filename))
+        end
       end
     end
   end
