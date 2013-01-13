@@ -69,6 +69,9 @@ class SkyDB
       def import(files)
         files = [files] unless files.is_a?(Array)
         
+        # TODO: Create table if it doesn't exist.
+        
+        
         # Loop over each of the files.
         files.each do |file|
           # Initialize progress bar.

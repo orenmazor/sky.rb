@@ -7,6 +7,7 @@ require 'skydb/client'
 require 'skydb/event'
 require 'skydb/message'
 require 'skydb/property'
+require 'skydb/table'
 require 'skydb/timestamp'
 require 'skydb/version'
 

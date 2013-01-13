@@ -20,7 +20,7 @@ class SkyDB
     # Initializes the message.
     def initialize(name)
       @name = name
-      @table = ""
+      @table_name = ""
     end
     
 
@@ -39,14 +39,14 @@ class SkyDB
 
 
     ####################################
-    # Table
+    # Table Name
     ####################################
 
     # The name of the table the message is being sent to/from.
-    attr_accessor :table
+    attr_accessor :table_name
 
-    def table=(value)
-      @table = value.to_s
+    def table_name=(value)
+      @table_name = value.to_s
     end
 
 
@@ -68,8 +68,8 @@ class SkyDB
     # Validates that the message is ready to be sent. If any validation issues
     # are found then an error is raised.
     def validate!
-      if require_table? && (table.nil? || table.empty?)
-        raise SkyDB::TableRequiredError.new('Table required')
+      if require_table? && (table_name.nil? || table_name.empty?)
+        raise SkyDB::TableRequiredError.new('Table name required')
       end
     end
 
@@ -98,7 +98,7 @@ class SkyDB
       buffer << [
         SkyDB::Message::VERSION,
         name,
-        table
+        table_name
         ].to_msgpack
     end
 
@@ -122,6 +122,8 @@ class SkyDB
     end
   end
 end
+
+require 'skydb/message/create_table'
 
 require 'skydb/message/add_action'
 require 'skydb/message/get_action'

@@ -38,8 +38,8 @@ class SkyDB
     # The port on the host to connect to.
     attr_accessor :port
 
-    # The table to connect to.
-    attr_accessor :table
+    # The name of the table to connect to.
+    attr_accessor :table_name
 
 
     ##########################################################################
@@ -190,7 +190,7 @@ class SkyDB
     # @return [Object]  the object returned by the server.
     def send_message(message)
       # Set the table if they're not set.
-      message.table = table if message.table.nil? || message.table.empty?
+      message.table_name = table_name if message.table_name.nil? || message.table_name.empty?
 
       # Validate message before sending.
       message.validate!

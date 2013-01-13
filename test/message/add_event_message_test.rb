@@ -12,7 +12,7 @@ class TestMessageAddEvent < MiniTest::Unit::TestCase
   
   def test_encode
     buffer = StringIO.new
-    @message.table = "users"
+    @message.table_name = "users"
     @message.event = SkyDB::Event.new(
       object_id: 12,
       timestamp:DateTime.parse('2010-01-02T10:30:20Z'),

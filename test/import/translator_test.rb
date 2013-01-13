@@ -24,7 +24,6 @@ class TestTranslator < MiniTest::Unit::TestCase
   def test_string_translation
     SkyDB::Import::Translator.new(:input_field => 'myString', :output_field => 'data')
       .translate(@input, @output)
-    puts "!!! #{@output}"
     assert_equal 'hello world', @output['data']
   end
 

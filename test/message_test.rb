@@ -8,7 +8,7 @@ class TestMessage < MiniTest::Unit::TestCase
   
   def test_encode
     buffer = StringIO.new
-    @message.table = "users"
+    @message.table_name = "users"
     @message.encode(buffer)
     assert_bytes "\x93\x01\xa3xyz\xa5users", buffer
   end
