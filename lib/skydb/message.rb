@@ -18,8 +18,8 @@ class SkyDB
     ##########################################################################
 
     # Initializes the message.
-    def initialize(name)
-      @name = name
+    def initialize(message_name)
+      @message_name = message_name
       @table_name = ""
     end
     
@@ -35,7 +35,7 @@ class SkyDB
     ####################################
 
     # The name of message being sent. This is defined by the subclass.
-    attr_reader :name
+    attr_reader :message_name
 
 
     ####################################
@@ -97,7 +97,7 @@ class SkyDB
     def encode_header(buffer)
       buffer << [
         SkyDB::Message::VERSION,
-        name,
+        message_name,
         table_name
         ].to_msgpack
     end
@@ -125,6 +125,7 @@ end
 
 require 'skydb/message/create_table'
 require 'skydb/message/delete_table'
+require 'skydb/message/get_table'
 
 require 'skydb/message/add_action'
 require 'skydb/message/get_action'
