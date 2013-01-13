@@ -1,5 +1,6 @@
 require 'yaml'
 require 'csv'
+require 'ruby-progressbar'
 
 class SkyDB
   class Import
@@ -68,26 +69,33 @@ class SkyDB
       def import(files)
         files = [files] unless files.is_a?(Array)
         
-        # TODO: Initialize progress bar.
-        
         # Loop over each of the files.
         files.each do |file|
+          # Initialize progress bar.
+          count = %x{wc -l #{file}}.split.first.to_i
+          progress_bar = ::ProgressBar.create(
+            :total => count,
+            :format => ('%-40s' % file) + ' |%B| %P%%'
+          )
+
           file = File.open(file, 'r')
           begin
             # Process each line of the CSV file.
             CSV.foreach(file, :headers => true) do |input|
               output = translate(input)
-              puts output
               
               # TODO: Send event to the Sky server.
-              # TODO: Update progress bar.
+
+              # Update progress bar.
+              progress_bar.increment()
             end
           ensure
             file.close
           end
+
+          # Finish progress bar.
+          progress_bar.finish()        
         end
-        
-        # TODO: Finish progress bar.
         
         return nil
       end
