@@ -1,17 +1,17 @@
 class SkyDB
   class Message
-    class CreateTable < SkyDB::Message
+    class DeleteTable < SkyDB::Message
       ########################################################################
       #
       # Constructor
       #
       ########################################################################
 
-      # Initializes the 'create table' message.
+      # Initializes the 'delete table' message.
       #
-      # @param [Table] table  the table to create.
+      # @param [Table] table  the table to delete.
       def initialize(table=nil, options={})
-        super('create_table')
+        super('delete_table')
         self.table = table
       end
 
@@ -48,7 +48,9 @@ class SkyDB
       #
       # @param [IO] buffer  the buffer to write the header to.
       def encode_body(buffer)
-        buffer << table.to_msgpack
+        buffer << {
+          name: table.name
+        }.to_msgpack
       end
     end
   end

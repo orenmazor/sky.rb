@@ -124,6 +124,7 @@ class SkyDB
 end
 
 require 'skydb/message/create_table'
+require 'skydb/message/delete_table'
 
 require 'skydb/message/add_action'
 require 'skydb/message/get_action'
