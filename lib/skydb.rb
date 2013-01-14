@@ -11,6 +11,7 @@ require 'skydb/table'
 require 'skydb/timestamp'
 require 'skydb/version'
 
+require 'ext/hash'
 require 'ext/string'
 
 class SkyDB
@@ -33,9 +34,10 @@ class SkyDB
 
   CLIENT_PASSTHROUGH = [
     :host, :host=, :port, :port=,
-    :table, :table=,
+    :table_name, :table_name=,
     :multi, :ping,
     :add_event,
+    :create_table, :delete_table, :get_table,
     :add_action, :get_action, :get_actions,
     :add_property, :get_property, :get_properties,
     :next_actions,

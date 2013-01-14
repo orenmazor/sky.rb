@@ -40,6 +40,15 @@ class SkyDB
       #
       ##########################################################################
 
+      ##################################
+      # Validation
+      ##################################
+
+      # A flag stating if the table is required for this type of message.
+      def require_table?
+        return false
+      end
+
       ####################################
       # Encoding
       ####################################
@@ -54,10 +63,11 @@ class SkyDB
       end
 
       def process_response(response)
-        if !response.nil?
-          response = SkyDB::Table.new(response['name'])
+        if !response.nil? && !response['table'].nil?
+          response = SkyDB::Table.new(response['table']['name'])
+        else
+          return nil
         end
-        return response
       end
     end
   end

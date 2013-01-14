@@ -11,6 +11,8 @@ program :name, 'Sky'
 program :version, SkyDB::VERSION
 program :description, 'A multi-purpose utilty for the Sky database.'
 
+SkyDB.debug = true
+
 
 ################################################################################
 # Import
@@ -22,6 +24,12 @@ command :import do |c|
   c.option('--table STRING', 'The name of the table to import to.')
   c.option('--format STRING', 'The YAML format file to import with.')
   c.when_called do|args, options|
+    # Check if the server is running.
+    if !SkyDB.ping
+      puts "Sky is not currently running on #{SkyDB.client.host}:#{SkyDB.client.port}."
+      exit(1)
+    end
+
     # Setup importer.
     importer = SkyDB::Import::Importer.new()
     importer.table_name = options.table || ask("Table: ")
@@ -34,6 +42,26 @@ command :import do |c|
       rescue SkyDB::Import::Importer::TransformNotFound => e
         puts "ERROR: #{e.message}\n\n"
         exit(1)
+      end
+    end
+    
+    # Check if table exists on server already.
+    table = SkyDB.get_table(importer.table_name)
+
+    # If table does not exists, then ask if it should be created.
+    if table.nil?
+      print "'#{importer.table_name}' does not exist. Create it? [Yn] "
+      c = STDIN.gets.chomp.upcase
+      exit(0) unless  c == '' || c[0] == 'Y'
+      SkyDB.create_table(SkyDB::Table.new(importer.table_name))
+    
+    # If it does exist, ask if the import should append.
+    else
+      print "'#{importer.table_name}' already exists. Append or overwrite? [Ao] "
+      c = STDIN.gets.chomp.upcase[0]
+      if c == 'O'
+        SkyDB.delete_table(SkyDB::Table.new(importer.table_name))
+        SkyDB.create_table(SkyDB::Table.new(importer.table_name))
       end
     end
     

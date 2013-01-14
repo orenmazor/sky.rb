@@ -16,7 +16,7 @@ class SkyDB
     ##########################################################################
 
     # Initializes the table.
-    def initialize(name=0, options={})
+    def initialize(name='', options={})
       self.name = name
       self.tablet_count = options[:tablet_count].to_i
     end

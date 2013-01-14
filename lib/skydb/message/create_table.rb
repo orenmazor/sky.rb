@@ -40,6 +40,15 @@ class SkyDB
       #
       ##########################################################################
 
+      ##################################
+      # Validation
+      ##################################
+
+      # A flag stating if the table is required for this type of message.
+      def require_table?
+        return false
+      end
+
       ####################################
       # Encoding
       ####################################

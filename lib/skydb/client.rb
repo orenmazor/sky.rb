@@ -21,6 +21,8 @@ class SkyDB
 
     # Initializes the client.
     def initialize(options={})
+      @multi_message_max_count = 0
+      
       self.host = options[:host] || DEFAULT_HOST
       self.port = options[:port] || DEFAULT_PORT
     end
@@ -48,6 +50,33 @@ class SkyDB
     #
     ##########################################################################
     
+    ####################################
+    # Table Messages
+    ####################################
+
+    # Creates a table on the server.
+    #
+    # @param [Table] table  the table to add.
+    def create_table(table, options={})
+      return send_message(SkyDB::Message::CreateTable.new(table, options))
+    end
+
+    # Deletes a table on the server.
+    #
+    # @param [Table] table  the table to delete.
+    def delete_table(table, options={})
+      return send_message(SkyDB::Message::DeleteTable.new(table, options))
+    end
+
+    # Retrieves an individual table from the server, if it exists. Otherwise
+    # returns nil.
+    #
+    # @param [Fixnum] action_id  the identifier of the action to retrieve.
+    def get_table(action_id, options={})
+      return send_message(SkyDB::Message::GetTable.new(action_id, options))
+    end
+
+
     ####################################
     # Action Messages
     ####################################
@@ -160,17 +189,16 @@ class SkyDB
       
       # Create multi-message.
       @multi_message = SkyDB::Message::Multi.new(options)
+      @multi_message_max_count = options[:max_count].to_i
       
       # Execute the block normally and send the message.
       begin
         yield
         
-        # Clear multi message so it doesn't add to itself.
-        tmp = @multi_message
-        @multi_message = nil
-        
         # Send all messages at once.
-        send_message(tmp)
+        if @multi_message.messages.length > 0
+          send_message(@multi_message)
+        end
 
       ensure
         @multi_message = nil
@@ -197,36 +225,54 @@ class SkyDB
       
       # If this is part of a multi message then simply append the message for
       # later sending.
-      if !@multi_message.nil?
+      if !@multi_message.nil? && @multi_message != message
         @multi_message.messages << message
+        
+        # Send off the MULTI if the message count is above our limit.
+        if @multi_message_max_count > 0 && @multi_message.messages.length >= @multi_message_max_count
+          send_message(@multi_message)
+          @multi_message = SkyDB::Message::Multi.new()
+        end
+        
         return nil
       
       # Otherwise send the message immediately.
       else
-        # Connect to the server.
-        socket = TCPSocket.new(host, port.to_i)
+        begin
+          # Connect to the server.
+          socket = TCPSocket.new(host, port.to_i)
       
-        # Encode and send message request.
-        message.encode(socket)
+          # Encode and send message request.
+          message.encode(socket)
       
-        # Decode msgpack response. There should only be one return object.
-        response = nil
-        unpacker = MessagePack::Unpacker.new(socket)
-        unpacker.each do |obj|
-          response = obj
-          break
+          # Retrieve the respose as a buffer so we can inspect it.
+          #msg, x = *socket.recvmsg
+          #buffer = StringIO.new(msg)
+          #puts "[#{message.message_name}]< #{buffer.string.to_hex}" if SkyDB.debug
+      
+          # Decode msgpack response. There should only be one return object.
+          response = nil
+          unpacker = MessagePack::Unpacker.new(socket)
+          unpacker.each do |obj|
+            response = obj
+            break
+          end
+      
+          # Close socket.
+          socket.close()
+      
+          # TODO: Exception processing.
+      
+          # Process response back through the message.
+          response = message.process_response(response)
+      
+          # Return response.
+          return response
+
+        ensure
+          # Make sure we remove the multi-message if that's what we're sending.
+          @multi_message = nil if @multi_message == message
         end
-      
-        # Close socket.
-        socket.close()
-      
-        # TODO: Exception processing.
-      
-        # Process response back through the message.
-        response = message.process_response(response)
-      
-        # Return response.
-        return response
       end
     end
   end

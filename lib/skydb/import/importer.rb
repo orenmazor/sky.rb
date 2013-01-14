@@ -69,8 +69,8 @@ class SkyDB
       def import(files)
         files = [files] unless files.is_a?(Array)
         
-        # TODO: Create table if it doesn't exist.
-        
+        # Set the table to import into.
+        SkyDB.table_name = table_name
         
         # Loop over each of the files.
         files.each do |file|
@@ -83,14 +83,29 @@ class SkyDB
 
           file = File.open(file, 'r')
           begin
-            # Process each line of the CSV file.
-            CSV.foreach(file, :headers => true) do |input|
-              output = translate(input)
+            SkyDB.multi(:max_count => 1000) do
+              # Process each line of the CSV file.
+              CSV.foreach(file, :headers => true) do |input|
+                # Convert input line to a symbolized hash.
+                output = translate(input)
+                output._symbolize_keys!
               
-              # TODO: Send event to the Sky server.
+                # Convert hash to an event and send to Sky.
+                event = SkyDB::Event.new(output)
 
-              # Update progress bar.
-              progress_bar.increment()
+                if !(event.object_id > 0)
+                  progress_bar.clear()
+                  puts "[ERROR] Invalid object id on line #{$.}."
+                elsif event.timestamp.nil?
+                  progress_bar.clear()
+                  puts "[ERROR] Invalid timestamp on line #{$.}."
+                else
+                  SkyDB.add_event(event)
+                end
+              
+                # Update progress bar.
+                progress_bar.increment()
+              end
             end
           ensure
             file.close
