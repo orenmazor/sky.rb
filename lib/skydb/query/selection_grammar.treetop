@@ -11,6 +11,10 @@ grammar SelectionGrammar
   # Matches a single field name as well as additional options such as an alias
   # or an aggregation method.
   rule field
+    aggregation_type '(' ws expression ws ')' ws alias_name <SkyDB::Query::Ast::SelectionFieldSyntaxNode>
+    /
+    aggregation_type '(' ws expression ws ')' <SkyDB::Query::Ast::SelectionFieldSyntaxNode>
+    /
     expression ws alias_name <SkyDB::Query::Ast::SelectionFieldSyntaxNode>
     /
     expression <SkyDB::Query::Ast::SelectionFieldSyntaxNode>
@@ -22,6 +26,10 @@ grammar SelectionGrammar
 
   rule alias_name
     identifier
+  end
+
+  rule aggregation_type
+    ([a-zA-Z]+)
   end
 
   rule identifier

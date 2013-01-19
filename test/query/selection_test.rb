@@ -23,4 +23,24 @@ class TestQuerySelection < MiniTest::Unit::TestCase
     assert_equal "baz", selection.fields[1].expression
     assert_equal "bat", selection.fields[1].alias_name
   end
+
+  def test_parse_aggregated_fields
+    selection = SkyDB::Query::Selection.parse("sum(foo), MIN(bar)")
+    assert_equal 2, selection.fields.length
+    assert_equal "foo", selection.fields[0].expression
+    assert_equal :sum, selection.fields[0].aggregation_type
+    assert_equal "bar", selection.fields[1].expression
+    assert_equal :min, selection.fields[1].aggregation_type
+  end
+
+  def test_parse_aliased_aggregated_fields
+    selection = SkyDB::Query::Selection.parse("sum(foo) baz, MIN(bar) bat")
+    assert_equal 2, selection.fields.length
+    assert_equal "foo", selection.fields[0].expression
+    assert_equal "baz", selection.fields[0].alias_name
+    assert_equal :sum, selection.fields[0].aggregation_type
+    assert_equal "bar", selection.fields[1].expression
+    assert_equal "bat", selection.fields[1].alias_name
+    assert_equal :min, selection.fields[1].aggregation_type
+  end
 end
