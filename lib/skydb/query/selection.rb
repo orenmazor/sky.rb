@@ -1,12 +1,13 @@
+require 'skydb/query/selection_parse_error'
 require 'skydb/query/selection_field'
 require 'skydb/query/ast'
 require 'skydb/query/selection_grammar'
 
 class SkyDB
-  # The selection object contains a list of all fields and their aliases.
-  # Selection fields can include simple properties as well as aggregation
-  # functions.
   class Query
+    # The selection object contains a list of all fields and their aliases.
+    # Selection fields can include simple properties as well as aggregation
+    # functions.
     class Selection
       ##########################################################################
       #
@@ -16,9 +17,18 @@ class SkyDB
 
       # Parses a string into a list of selection fields.
       def self.parse(str)
+        # Parse the selection string.
         parser = SelectionGrammarParser.new()
         ast = parser.parse(str)
-        p ast
+
+        # If there was a problem then throw a parse error.
+        if ast.nil?
+          raise SkyDB::Query::SelectionParseError.new(parser.failure_reason,
+            :line => parser.failure_line,
+            :column => parser.failure_column
+          )
+        end
+        
         return ast.generate
       end
       

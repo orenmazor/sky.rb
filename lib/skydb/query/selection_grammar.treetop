@@ -3,12 +3,25 @@ grammar SelectionGrammar
     fields <SkyDB::Query::Ast::SelectionSyntaxNode>
   end
 
+  # Matches all selection fields.
   rule fields
-    field (',' ws field)*
+    ws field (ws ',' ws field)* ws
   end
 
+  # Matches a single field name as well as additional options such as an alias
+  # or an aggregation method.
   rule field
-    identifier <SkyDB::Query::Ast::SelectionFieldSyntaxNode>
+    expression ws alias_name <SkyDB::Query::Ast::SelectionFieldSyntaxNode>
+    /
+    expression <SkyDB::Query::Ast::SelectionFieldSyntaxNode>
+  end
+
+  rule expression
+    identifier
+  end
+
+  rule alias_name
+    identifier
   end
 
   rule identifier
@@ -16,6 +29,6 @@ grammar SelectionGrammar
   end
 
   rule ws
-    (' ' / '\t' / '\n' / '\r')*
+    (' ' / "\t" / "\n" / "\r")*
   end
 end
