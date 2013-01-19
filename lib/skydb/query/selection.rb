@@ -60,10 +60,18 @@ class SkyDB
       #
       ##########################################################################
     
-      # Executes the query and returns the resulting data.
-      def results
-        # TODO: Build Lua query and execute it on the server.
-        # TODO: Return the results.
+      # Generates Lua code based on the items in the selection.
+      def codegen
+        header, body, footer = "function select(cursor, data)\n", [], "end\n"
+      
+        # Generate the assignment for each field.
+        fields.each do |field|
+          body << "data.#{field.expression} = data.#{field.expression}"
+        end
+        
+        # Indent body and return.
+        body.map! {|line| "  " + line}
+        return header + body.join("\n") + "\n" + footer
       end
     end
   end
