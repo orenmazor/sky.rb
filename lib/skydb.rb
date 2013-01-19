@@ -15,6 +15,7 @@ require 'skydb/version'
 
 require 'ext/hash'
 require 'ext/string'
+require 'ext/treetop'
 
 class SkyDB
   ############################################################################

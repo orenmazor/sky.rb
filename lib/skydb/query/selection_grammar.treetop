@@ -4,7 +4,7 @@ grammar SelectionGrammar
   end
 
   rule fields
-    field (',' field)*
+    field (',' ws field)*
   end
 
   rule field
@@ -13,5 +13,9 @@ grammar SelectionGrammar
 
   rule identifier
     ([a-zA-Z_] [a-zA-Z0-9_]*) 
+  end
+
+  rule ws
+    (' ' / '\t' / '\n' / '\r')*
   end
 end
