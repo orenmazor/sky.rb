@@ -1,12 +1,14 @@
 require 'date'
 require 'msgpack'
 require 'socket'
+require 'treetop'
 
 require 'skydb/action'
 require 'skydb/client'
 require 'skydb/event'
 require 'skydb/message'
 require 'skydb/property'
+require 'skydb/query'
 require 'skydb/table'
 require 'skydb/timestamp'
 require 'skydb/version'
@@ -41,7 +43,8 @@ class SkyDB
     :add_action, :get_action, :get_actions,
     :add_property, :get_property, :get_properties,
     :next_actions,
-    :aggregate
+    :aggregate,
+    :select
   ]
   
   

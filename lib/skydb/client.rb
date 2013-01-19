@@ -180,6 +180,20 @@ class SkyDB
 
 
     ####################################
+    # Query Interface
+    ####################################
+
+    # Starts a query against the database.
+    #
+    # @param [String] selection  a list of properties to select from the database.
+    def select(fields)
+      return SkyDB::Query.new(
+        :selection => SkyDB::Query::Selection.parse(fields)
+      )
+    end
+
+
+    ####################################
     # Multi message
     ####################################
 
