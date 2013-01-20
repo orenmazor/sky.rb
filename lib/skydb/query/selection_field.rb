@@ -37,6 +37,32 @@ class SkyDB
       # The data type of the expression. This is especially important when
       # accessing string data since it needs to be handled differently in Sky.
       attr_accessor :data_type
+
+      # The final computed name of the field. It is named after the alias name
+      # if provided, otherwise defaults to the expression. If neither the
+      # expression or alias are provided then the aggregation type is used.
+      def target_name
+        return alias_name || expression || aggregation_type.to_s
+      end
+
+
+      ##########################################################################
+      #
+      # Methods
+      #
+      ##########################################################################
+
+      ####################################
+      # Validation
+      ####################################
+
+      # Validates that the field is valid.
+      def validate!
+        # Expression must be present unless this is a COUNT().
+        if expression.to_s.length == 0 && aggregation_type != :count
+          raise SkyDB::Query::ValidationError.new("Invalid expression for selection field: '#{expression.to_s}'")
+        end
+      end
     end
   end
 end

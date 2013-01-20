@@ -108,7 +108,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
       <<-BLOCK.unindent
         function select(cursor, data)
           target = data
-          target.bar = (target.bar || 0) + 1
+          target.bar = (target.bar or 0) + 1
         end
       BLOCK
     assert_equal expected, @selection.codegen()
@@ -120,7 +120,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
       <<-BLOCK.unindent
         function select(cursor, data)
           target = data
-          target.bar = (target.bar || 0) + cursor.event.foo
+          target.bar = (target.bar or 0) + cursor.event.foo
         end
       BLOCK
     assert_equal expected, @selection.codegen()
@@ -132,7 +132,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
       <<-BLOCK.unindent
         function select(cursor, data)
           target = data
-          if(target.bar == nil || target.bar > cursor.event.foo) then
+          if(target.bar == nil or target.bar > cursor.event.foo) then
             target.bar = cursor.event.foo
           end
         end
@@ -146,7 +146,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
       <<-BLOCK.unindent
         function select(cursor, data)
           target = data
-          if(target.bar == nil || target.bar > cursor.event.foo) then
+          if(target.bar == nil or target.bar > cursor.event.foo) then
             target.bar = cursor.event.foo
           end
         end

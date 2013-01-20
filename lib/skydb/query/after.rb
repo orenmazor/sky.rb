@@ -1,7 +1,7 @@
 class SkyDB
   class Query
-    # The 'after' constraint filters out selection only after the constraint
-    # has been matched.
+    # The 'after' condition filters out selection only after the condition
+    # has been fulfilled.
     class After
       ##########################################################################
       #
@@ -66,18 +66,26 @@ class SkyDB
       ##################################
 
       # Generates Lua code to match a given action.
-      def codegen
-        validate!
-        
+      def codegen(options={})
         header, body, footer = "function #{function_name.to_s}(cursor, data)\n", [], "end\n"
       
-        body << "while cursor:next_session() do"
-        body << "  while cursor:next() do"
-        body << "    if cursor.event.action_id == #{action_id} then"
-        body << "      return true"
-        body << "    end"
+        # Only move to the next event if directed to by the options.
+        if options[:next]
+          body << "while cursor:next() do"
+        else
+          body << "repeat"
+        end
+
+        body << "  if cursor.event.action_id == #{action_id} then"
+        body << "    return true"
         body << "  end"
-        body << "end"
+
+        if options[:next]
+          body << "end"
+        else
+          body << "until not cursor:next()"
+        end
+
         body << "return false"
 
         # Indent body and return.

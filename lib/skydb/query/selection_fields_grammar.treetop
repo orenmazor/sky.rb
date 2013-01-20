@@ -13,6 +13,8 @@ grammar SelectionFieldsGrammar
   rule field
     aggregation_type '(' ws ')' ws alias_name <SkyDB::Query::Ast::SelectionFieldSyntaxNode>
     /
+    aggregation_type '(' ws ')' <SkyDB::Query::Ast::SelectionFieldSyntaxNode>
+    /
     aggregation_type '(' ws expression ws ')' ws alias_name <SkyDB::Query::Ast::SelectionFieldSyntaxNode>
     /
     aggregation_type '(' ws expression ws ')' <SkyDB::Query::Ast::SelectionFieldSyntaxNode>

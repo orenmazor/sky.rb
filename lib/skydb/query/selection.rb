@@ -97,6 +97,74 @@ class SkyDB
       #
       ##########################################################################
     
+      ####################################
+      # Helpers
+      ####################################
+
+      # Adds a list of fields to the selection.
+      #
+      # @param [String] args  A list of fields to add to the selection.
+      #
+      # @return [Selection]  The selection object is returned.
+      def select(*args)
+        args.each do |arg|
+          if arg.is_a?(String)
+            self.fields = self.fields.concat(SkyDB::Query::Selection.parse_fields(arg))
+          elsif arg.is_a?(Symbol)
+            self.fields << SelectionField.new(:expression => arg.to_s)
+          else
+            raise "Invalid selection argument: #{arg} (#{arg.class})"
+          end
+        end
+        
+        return self
+      end
+
+      # Adds one or more grouping fields to the selection of the query.
+      #
+      # @param [String] args  A list of groups to add to the selection.
+      #
+      # @return [Selection]  The selection object is returned.
+      def group_by(*args)
+        args.each do |arg|
+          if arg.is_a?(String)
+            self.groups = self.groups.concat(SkyDB::Query::Selection.parse_groups(arg))
+          elsif arg.is_a?(Symbol)
+            self.groups << SelectionGroup.new(:expression => arg.to_s)
+          else
+            raise "Invalid group by argument: #{arg} (#{arg.class})"
+          end
+        end
+        
+        return self
+      end
+
+
+      ####################################
+      # Validation
+      ####################################
+
+      # Validates that all the elements of the query are valid.
+      def validate!
+        # Require that at least one field exist.
+        if fields.length == 0
+          raise SkyDB::Query::ValidationError.new("At least one selection field is required for #{self.inspect}.")
+        end
+
+        fields.each do |field|
+          field.validate!
+        end
+
+        groups.each do |group|
+          group.validate!
+        end
+      end
+
+
+      ####################################
+      # Codegen
+      ####################################
+
       # Generates Lua code based on the items in the selection.
       def codegen
         header, body, footer = "function select(cursor, data)\n", [], "end\n"
@@ -116,21 +184,21 @@ class SkyDB
 
         # Generate the assignment for each field.
         fields.each do |field|
-          alias_name = !field.alias_name.nil? ? field.alias_name : field.expression
+          alias_name = field.target_name
           
           case field.aggregation_type
           when nil
             body << "target.#{alias_name} = cursor.event.#{field.expression}"
           when :count
-            body << "target.#{alias_name} = (target.#{alias_name} || 0) + 1"
+            body << "target.#{alias_name} = (target.#{alias_name} or 0) + 1"
           when :sum
-            body << "target.#{alias_name} = (target.#{alias_name} || 0) + cursor.event.#{field.expression}"
+            body << "target.#{alias_name} = (target.#{alias_name} or 0) + cursor.event.#{field.expression}"
           when :min
-            body << "if(target.#{alias_name} == nil || target.#{alias_name} > cursor.event.#{field.expression}) then"
+            body << "if(target.#{alias_name} == nil or target.#{alias_name} > cursor.event.#{field.expression}) then"
             body << "  target.#{alias_name} = cursor.event.#{field.expression}"
             body << "end"
           when :max
-            body << "if(target.#{alias_name} == nil || target.#{alias_name} < cursor.event.#{field.expression}) then"
+            body << "if(target.#{alias_name} == nil or target.#{alias_name} < cursor.event.#{field.expression}) then"
             body << "  target.#{alias_name} = cursor.event.#{field.expression}"
             body << "end"
           else
