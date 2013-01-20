@@ -101,24 +101,37 @@ class SkyDB
       def codegen
         header, body, footer = "function select(cursor, data)\n", [], "end\n"
       
+        # Setup target object.
+        body << "target = data"
+        body << "" if groups.length > 0
+
+        # Initialize groups.
+        groups.each do |group|
+          body << "if target[cursor.event.#{group.expression}] == nil then"
+          body << "  target[cursor.event.#{group.expression}] = {}"
+          body << "end"
+          body << "target = target[cursor.event.#{group.expression}]"
+          body << ""
+        end
+
         # Generate the assignment for each field.
         fields.each do |field|
           alias_name = !field.alias_name.nil? ? field.alias_name : field.expression
           
           case field.aggregation_type
           when nil
-            body << "data.#{alias_name} = data.#{field.expression}"
+            body << "target.#{alias_name} = cursor.event.#{field.expression}"
           when :count
-            body << "data.#{alias_name} = (data.#{alias_name} || 0) + 1"
+            body << "target.#{alias_name} = (target.#{alias_name} || 0) + 1"
           when :sum
-            body << "data.#{alias_name} = (data.#{alias_name} || 0) + cursor.event.#{field.expression}"
+            body << "target.#{alias_name} = (target.#{alias_name} || 0) + cursor.event.#{field.expression}"
           when :min
-            body << "if(data.#{alias_name} == nil || data.#{alias_name} > cursor.event.#{field.expression}) then"
-            body << "  data.#{alias_name} = cursor.event.#{field.expression}"
+            body << "if(target.#{alias_name} == nil || target.#{alias_name} > cursor.event.#{field.expression}) then"
+            body << "  target.#{alias_name} = cursor.event.#{field.expression}"
             body << "end"
           when :max
-            body << "if(data.#{alias_name} == nil || data.#{alias_name} < cursor.event.#{field.expression}) then"
-            body << "  data.#{alias_name} = cursor.event.#{field.expression}"
+            body << "if(target.#{alias_name} == nil || target.#{alias_name} < cursor.event.#{field.expression}) then"
+            body << "  target.#{alias_name} = cursor.event.#{field.expression}"
             body << "end"
           else
             raise StandardError.new("Invalid aggregation type: #{field.aggregation_type}")

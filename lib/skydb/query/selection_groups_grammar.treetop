@@ -10,8 +10,6 @@ grammar SelectionGroupsGrammar
 
   # Matches a single group name and optional alias.
   rule group
-    expression ws alias_name <SkyDB::Query::Ast::SelectionGroupSyntaxNode>
-    /
     expression <SkyDB::Query::Ast::SelectionGroupSyntaxNode>
   end
 

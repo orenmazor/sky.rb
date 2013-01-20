@@ -83,15 +83,6 @@ class TestQuerySelection < MiniTest::Unit::TestCase
     assert_equal "bar", groups[1].expression
   end
 
-  def test_parse_aliased_groups
-    groups = SkyDB::Query::Selection.parse_groups("foo bar, baz bat_12")
-    assert_equal 2, groups.length
-    assert_equal "foo", groups[0].expression
-    assert_equal "bar", groups[0].alias_name
-    assert_equal "baz", groups[1].expression
-    assert_equal "bat_12", groups[1].alias_name
-  end
-
 
 
   ######################################
@@ -103,8 +94,9 @@ class TestQuerySelection < MiniTest::Unit::TestCase
     expected =
       <<-BLOCK.unindent
         function select(cursor, data)
-          data.foo = data.foo
-          data.my_alias = data.bar
+          target = data
+          target.foo = cursor.event.foo
+          target.my_alias = cursor.event.bar
         end
       BLOCK
     assert_equal expected, @selection.codegen()
@@ -115,7 +107,8 @@ class TestQuerySelection < MiniTest::Unit::TestCase
     expected =
       <<-BLOCK.unindent
         function select(cursor, data)
-          data.bar = (data.bar || 0) + 1
+          target = data
+          target.bar = (target.bar || 0) + 1
         end
       BLOCK
     assert_equal expected, @selection.codegen()
@@ -126,7 +119,8 @@ class TestQuerySelection < MiniTest::Unit::TestCase
     expected =
       <<-BLOCK.unindent
         function select(cursor, data)
-          data.bar = (data.bar || 0) + cursor.event.foo
+          target = data
+          target.bar = (target.bar || 0) + cursor.event.foo
         end
       BLOCK
     assert_equal expected, @selection.codegen()
@@ -137,8 +131,9 @@ class TestQuerySelection < MiniTest::Unit::TestCase
     expected =
       <<-BLOCK.unindent
         function select(cursor, data)
-          if(data.bar == nil || data.bar > cursor.event.foo) then
-            data.bar = cursor.event.foo
+          target = data
+          if(target.bar == nil || target.bar > cursor.event.foo) then
+            target.bar = cursor.event.foo
           end
         end
       BLOCK
@@ -150,9 +145,60 @@ class TestQuerySelection < MiniTest::Unit::TestCase
     expected =
       <<-BLOCK.unindent
         function select(cursor, data)
-          if(data.bar == nil || data.bar > cursor.event.foo) then
-            data.bar = cursor.event.foo
+          target = data
+          if(target.bar == nil || target.bar > cursor.event.foo) then
+            target.bar = cursor.event.foo
           end
+        end
+      BLOCK
+    assert_equal expected, @selection.codegen()
+  end
+
+  def test_grouped_codegen
+    @selection.fields = SkyDB::Query::Selection.parse_fields("foo, bar my_alias")
+    @selection.groups = SkyDB::Query::Selection.parse_groups("baz")
+    expected =
+      <<-BLOCK.unindent
+        function select(cursor, data)
+          target = data
+          
+          if target[cursor.event.baz] == nil then
+            target[cursor.event.baz] = {}
+          end
+          target = target[cursor.event.baz]
+          
+          target.foo = cursor.event.foo
+          target.my_alias = cursor.event.bar
+        end
+      BLOCK
+    assert_equal expected, @selection.codegen()
+  end
+
+  def test_multiple_group_codegen
+    @selection.fields = SkyDB::Query::Selection.parse_fields("foo, bar my_alias")
+    @selection.groups = SkyDB::Query::Selection.parse_groups("aaa, bbb, ccc")
+    expected =
+      <<-BLOCK.unindent
+        function select(cursor, data)
+          target = data
+          
+          if target[cursor.event.aaa] == nil then
+            target[cursor.event.aaa] = {}
+          end
+          target = target[cursor.event.aaa]
+          
+          if target[cursor.event.bbb] == nil then
+            target[cursor.event.bbb] = {}
+          end
+          target = target[cursor.event.bbb]
+          
+          if target[cursor.event.ccc] == nil then
+            target[cursor.event.ccc] = {}
+          end
+          target = target[cursor.event.ccc]
+          
+          target.foo = cursor.event.foo
+          target.my_alias = cursor.event.bar
         end
       BLOCK
     assert_equal expected, @selection.codegen()
