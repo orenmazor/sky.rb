@@ -1,4 +1,6 @@
 require 'skydb/query/selection'
+require 'skydb/query/after'
+require 'skydb/query/validation_error'
 
 class SkyDB
   # The Query object represents a high level abstraction of how data is
