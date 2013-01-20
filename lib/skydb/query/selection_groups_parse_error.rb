@@ -1,6 +1,6 @@
 class SkyDB
   class Query
-    class SelectionParseError < StandardError
+    class SelectionGroupsParseError < StandardError
       ##########################################################################
       #
       # Constructor

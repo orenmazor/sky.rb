@@ -1,0 +1,33 @@
+grammar SelectionGroupsGrammar
+  rule root
+    groups <SkyDB::Query::Ast::SelectionGroupsSyntaxNode>
+  end
+
+  # Matches all selection groups.
+  rule groups
+    ws group (ws ',' ws group)* ws
+  end
+
+  # Matches a single group name and optional alias.
+  rule group
+    expression ws alias_name <SkyDB::Query::Ast::SelectionGroupSyntaxNode>
+    /
+    expression <SkyDB::Query::Ast::SelectionGroupSyntaxNode>
+  end
+
+  rule expression
+    identifier
+  end
+
+  rule alias_name
+    identifier
+  end
+
+  rule identifier
+    ([a-zA-Z_] [a-zA-Z0-9_]*) 
+  end
+
+  rule ws
+    (' ' / "\t" / "\n" / "\r")*
+  end
+end

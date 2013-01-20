@@ -16,7 +16,6 @@ class SkyDB
     def initialize(options={})
       self.client = options[:client]
       self.selection = options[:selection]
-      self.groups = options[:groups]
     end
     
 
@@ -31,9 +30,6 @@ class SkyDB
 
     # The properties that should be selected from the database.
     attr_accessor :selection
-
-    # The properties that should be grouped by when selecting data.
-    attr_accessor :groups
 
 
     ##########################################################################
