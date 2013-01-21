@@ -48,6 +48,7 @@ class TestQueryAfter < MiniTest::Unit::TestCase
         function foo(cursor, data)
           repeat
             if cursor.event.action_id == 10 then
+              cursor:next()
               return true
             end
           until not cursor:next()
@@ -55,21 +56,5 @@ class TestQueryAfter < MiniTest::Unit::TestCase
         end
       BLOCK
     assert_equal expected, @after.codegen()
-  end
-
-  def test_codegen_with_next
-    @after = SkyDB::Query::After.new(:action => 10, :function_name => "foo")
-    expected =
-      <<-BLOCK.unindent
-        function foo(cursor, data)
-          while cursor:next() do
-            if cursor.event.action_id == 10 then
-              return true
-            end
-          end
-          return false
-        end
-      BLOCK
-    assert_equal expected, @after.codegen(:next => true)
   end
 end

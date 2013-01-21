@@ -92,8 +92,6 @@ class SkyDB
                 output = translate(input)
                 output._symbolize_keys!
                 
-                p output
-              
                 # Convert hash to an event and send to Sky.
                 event = SkyDB::Event.new(output)
 
@@ -153,6 +151,13 @@ class SkyDB
       def load_transform(content)
         # Parse the transform file.
         transform = {'fields' => {}}.merge(YAML.load(content))
+
+        # Load any libraries requested by the format file.
+        if transform['require'].is_a?(Array)
+          transform['require'].each do |library_name|
+            require library_name
+          end
+        end
 
         # Load individual field translations.
         load_transform_fields(transform['fields'])

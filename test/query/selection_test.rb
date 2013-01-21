@@ -162,10 +162,11 @@ class TestQuerySelection < MiniTest::Unit::TestCase
         function select(cursor, data)
           target = data
           
-          if target[cursor.event.baz()] == nil then
-            target[cursor.event.baz()] = {}
+          group_value = cursor.event.baz()
+          if target[group_value] == nil then
+            target[group_value] = {}
           end
-          target = target[cursor.event.baz()]
+          target = target[group_value]
           
           target.foo = cursor.event.foo()
           target.my_alias = cursor.event.bar()
@@ -182,20 +183,23 @@ class TestQuerySelection < MiniTest::Unit::TestCase
         function select(cursor, data)
           target = data
           
-          if target[cursor.event.aaa()] == nil then
-            target[cursor.event.aaa()] = {}
+          group_value = cursor.event.aaa()
+          if target[group_value] == nil then
+            target[group_value] = {}
           end
-          target = target[cursor.event.aaa()]
+          target = target[group_value]
           
-          if target[cursor.event.bbb()] == nil then
-            target[cursor.event.bbb()] = {}
+          group_value = cursor.event.bbb()
+          if target[group_value] == nil then
+            target[group_value] = {}
           end
-          target = target[cursor.event.bbb()]
+          target = target[group_value]
           
-          if target[cursor.event.ccc()] == nil then
-            target[cursor.event.ccc()] = {}
+          group_value = cursor.event.ccc()
+          if target[group_value] == nil then
+            target[group_value] = {}
           end
-          target = target[cursor.event.ccc()]
+          target = target[group_value]
           
           target.foo = cursor.event.foo()
           target.my_alias = cursor.event.bar()
@@ -217,8 +221,8 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           a = results
           b = data
           a.foo = b.foo
-          a.my_alias = (a.my_alias or 0) + b.my_alias
-          a.count = (a.count or 0) + b.count
+          a.my_alias = (a.my_alias or 0) + (b.my_alias or 0)
+          a.count = (a.count or 0) + (b.count or 0)
           if(a.x == nil or a.x > b.x) then
             a.x = b.x
           end
@@ -235,12 +239,12 @@ class TestQuerySelection < MiniTest::Unit::TestCase
     expected =
       <<-BLOCK.unindent
         function merge(results, data)
-          for k0,v0 in pairs(results[k0]) do
+          for k0,v0 in pairs(data) do
             if results[k0] == nil then results[k0] = {} end
             a = results[k0]
             b = data[k0]
-            a.foo = (a.foo or 0) + b.foo
-            a.count = (a.count or 0) + b.count
+            a.foo = (a.foo or 0) + (b.foo or 0)
+            a.count = (a.count or 0) + (b.count or 0)
           end
         end
       BLOCK
@@ -252,14 +256,14 @@ class TestQuerySelection < MiniTest::Unit::TestCase
     expected =
       <<-BLOCK.unindent
         function merge(results, data)
-          for k0,v0 in pairs(results[k0]) do
+          for k0,v0 in pairs(data) do
             if results[k0] == nil then results[k0] = {} end
-            for k1,v1 in pairs(results[k0][k1]) do
+            for k1,v1 in pairs(data[k0]) do
               if results[k0][k1] == nil then results[k0][k1] = {} end
               a = results[k0][k1]
               b = data[k0][k1]
-              a.foo = (a.foo or 0) + b.foo
-              a.count = (a.count or 0) + b.count
+              a.foo = (a.foo or 0) + (b.foo or 0)
+              a.count = (a.count or 0) + (b.count or 0)
             end
           end
         end

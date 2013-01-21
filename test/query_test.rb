@@ -84,6 +84,7 @@ class TestQuery < MiniTest::Unit::TestCase
         function __condition1(cursor, data)
           repeat
             if cursor.event.action_id == 10 then
+              cursor:next()
               return true
             end
           until not cursor:next()
@@ -91,11 +92,12 @@ class TestQuery < MiniTest::Unit::TestCase
         end
         
         function __condition2(cursor, data)
-          while cursor:next() do
+          repeat
             if cursor.event.action_id == 20 then
+              cursor:next()
               return true
             end
-          end
+          until not cursor:next()
           return false
         end
         
@@ -112,7 +114,36 @@ class TestQuery < MiniTest::Unit::TestCase
         function merge(results, data)
           a = results
           b = data
-          a.count = (a.count or 0) + b.count
+          a.count = (a.count or 0) + (b.count or 0)
+        end
+      BLOCK
+    assert_equal expected.chomp, @query.codegen().chomp
+  end
+
+  def test_codegen_with_session
+    @query.select('count()').session(7200)
+    expected =
+      <<-BLOCK.unindent
+        function select(cursor, data)
+          target = data
+          target.count = (target.count or 0) + 1
+        end
+        
+        function aggregate(cursor, data)
+          cursor:set_session_idle(7200)
+          while cursor:next_session() do
+            while cursor:next() do
+              if true then
+                select(cursor, data)
+              end
+            end
+          end
+        end
+
+        function merge(results, data)
+          a = results
+          b = data
+          a.count = (a.count or 0) + (b.count or 0)
         end
       BLOCK
     assert_equal expected.chomp, @query.codegen().chomp

@@ -37,6 +37,9 @@ class SkyDB
     # A list of conditions that must be fulfilled before selection can occur.
     attr_accessor :conditions
 
+    # The number of idle seconds that separates sessions. 
+    attr_accessor :session_idle_time
+
 
     ##########################################################################
     #
@@ -75,6 +78,16 @@ class SkyDB
     # @return [Query]  The query object is returned.
     def after(options={})
       conditions << SkyDB::Query::After.new(options)
+      return self
+    end
+
+    # Sets the session idle seconds and returns the query object.
+    #
+    # @param [Fixnum] seconds  The number of idle seconds.
+    #
+    # @return [Query]  The query object is returned.
+    def session(seconds)
+      self.session_idle_time = seconds
       return self
     end
 
@@ -125,7 +138,7 @@ class SkyDB
       # Generate condition functions.
       conditions.each_with_index do |condition, index|
         condition.function_name ||= "__condition#{nextseq}"
-        code << condition.codegen(:next => (index > 0))
+        code << condition.codegen
       end
 
       # Generate the invocation of the conditions.
@@ -134,11 +147,14 @@ class SkyDB
       
       # Generate aggregate() function.
       code << "function aggregate(cursor, data)"
+      code << "  cursor:set_session_idle(#{session_idle_time.to_i})" if session_idle_time.to_i > 0
+      code << "  while cursor:next_session() do"
       code << "    while cursor:next() do"
       code << "      if #{conditionals} then"
       code << "        select(cursor, data)"
       code << "      end"
       code << "    end"
+      code << "  end"
       code << "end"
       code << ""
 
