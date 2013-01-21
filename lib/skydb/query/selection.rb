@@ -166,7 +166,7 @@ class SkyDB
       ####################################
 
       # Generates Lua code for the aggregation based on the selection.
-      def codegen_aggregate
+      def codegen_select
         header, body, footer = "function select(cursor, data)\n", [], "end\n"
       
         # Setup target object.
@@ -175,10 +175,12 @@ class SkyDB
 
         # Initialize groups.
         groups.each do |group|
-          body << "if target[#{group.accessor}] == nil then"
-          body << "  target[#{group.accessor}] = {}"
+          body << "group_value = #{group.accessor}"
+          body << "if cursor:eof() then group_value = -1 end" if group.expression == 'action_id'
+          body << "if target[group_value] == nil then"
+          body << "  target[group_value] = {}"
           body << "end"
-          body << "target = target[#{group.accessor}]"
+          body << "target = target[group_value]"
           body << ""
         end
 
@@ -214,12 +216,13 @@ class SkyDB
       # Generates Lua code for the merge function.
       def codegen_merge
         header, body, footer = "function merge(results, data)\n", [], "end\n"
-      
+
         # Open group loops.
         groups.each_with_index do |group, index|
-          target = "results" + (0..index).to_a.map {|i| "[k#{i}]"}.join('')
-          body << "#{'  ' * index}for k#{index},v#{index} in pairs(#{target}) do"
-          body << "#{'  ' * index}  if #{target} == nil then #{target} = {} end"
+          data_item = "data" + (0...index).to_a.map {|i| "[k#{i}]"}.join('')
+          results_item = "results" + (0..index).to_a.map {|i| "[k#{i}]"}.join('')
+          body << "#{'  ' * index}for k#{index},v#{index} in pairs(#{data_item}) do"
+          body << "#{'  ' * index}  if #{results_item} == nil then #{results_item} = {} end"
         end
 
         indent = '  ' * groups.length
@@ -227,7 +230,6 @@ class SkyDB
         body << "#{indent}b = data" + (0...groups.length).to_a.map {|i| "[k#{i}]"}.join('')
 
         # Generate the merge for each field.
-        puts ">>> #{fields}"
         fields.each do |field|
           alias_name = field.target_name
           
@@ -235,9 +237,9 @@ class SkyDB
           when nil
             body << "#{indent}a.#{alias_name} = b.#{alias_name}"
           when :count
-            body << "#{indent}a.#{alias_name} = (a.#{alias_name} or 0) + b.#{alias_name}"
+            body << "#{indent}a.#{alias_name} = (a.#{alias_name} or 0) + (b.#{alias_name} or 0)"
           when :sum
-            body << "#{indent}a.#{alias_name} = (a.#{alias_name} or 0) + b.#{alias_name}"
+            body << "#{indent}a.#{alias_name} = (a.#{alias_name} or 0) + (b.#{alias_name} or 0)"
           when :min
             body << "#{indent}if(a.#{alias_name} == nil or a.#{alias_name} > b.#{alias_name}) then"
             body << "#{indent}  a.#{alias_name} = b.#{alias_name}"

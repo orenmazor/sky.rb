@@ -120,7 +120,7 @@ class SkyDB
 
       # Generate selection.
       code = []
-      code << selection.codegen_aggregate()
+      code << selection.codegen_select()
       
       # Generate condition functions.
       conditions.each_with_index do |condition, index|
@@ -134,13 +134,11 @@ class SkyDB
       
       # Generate aggregate() function.
       code << "function aggregate(cursor, data)"
-      code << "  while cursor:next_session() do"
       code << "    while cursor:next() do"
       code << "      if #{conditionals} then"
       code << "        select(cursor, data)"
       code << "      end"
       code << "    end"
-      code << "  end"
       code << "end"
       code << ""
 

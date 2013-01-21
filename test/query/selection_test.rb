@@ -99,7 +99,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           target.my_alias = cursor.event.bar()
         end
       BLOCK
-    assert_equal expected, @selection.codegen_aggregate()
+    assert_equal expected, @selection.codegen_select()
   end
 
   def test_count_codegen
@@ -111,7 +111,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           target.bar = (target.bar or 0) + 1
         end
       BLOCK
-    assert_equal expected, @selection.codegen_aggregate()
+    assert_equal expected, @selection.codegen_select()
   end
 
   def test_sum_codegen
@@ -123,7 +123,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           target.bar = (target.bar or 0) + cursor.event.foo()
         end
       BLOCK
-    assert_equal expected, @selection.codegen_aggregate()
+    assert_equal expected, @selection.codegen_select()
   end
 
   def test_min_codegen
@@ -137,7 +137,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           end
         end
       BLOCK
-    assert_equal expected, @selection.codegen_aggregate()
+    assert_equal expected, @selection.codegen_select()
   end
 
   def test_max_codegen
@@ -151,7 +151,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           end
         end
       BLOCK
-    assert_equal expected, @selection.codegen_aggregate()
+    assert_equal expected, @selection.codegen_select()
   end
 
   def test_grouped_codegen
@@ -171,7 +171,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           target.my_alias = cursor.event.bar()
         end
       BLOCK
-    assert_equal expected, @selection.codegen_aggregate()
+    assert_equal expected, @selection.codegen_select()
   end
 
   def test_multiple_group_codegen
@@ -201,7 +201,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           target.my_alias = cursor.event.bar()
         end
       BLOCK
-    assert_equal expected, @selection.codegen_aggregate()
+    assert_equal expected, @selection.codegen_select()
   end
 
 

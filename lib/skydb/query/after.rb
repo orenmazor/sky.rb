@@ -77,21 +77,12 @@ class SkyDB
         header, body, footer = "function #{function_name.to_s}(cursor, data)\n", [], "end\n"
       
         # Only move to the next event if directed to by the options.
-        if options[:next]
-          body << "while cursor:next() do"
-        else
-          body << "repeat"
-        end
-
+        body << "repeat"
         body << "  if cursor.event.action_id == #{action.id.to_i} then"
+        body << "    cursor:next()"
         body << "    return true"
         body << "  end"
-
-        if options[:next]
-          body << "end"
-        else
-          body << "until not cursor:next()"
-        end
+        body << "until not cursor:next()"
 
         body << "return false"
 
