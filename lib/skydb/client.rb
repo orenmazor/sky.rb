@@ -151,7 +151,7 @@ class SkyDB
 
 
     ####################################
-    # Ping
+    # Utility message
     ####################################
 
     # Checks if the server is up and running.
@@ -164,6 +164,12 @@ class SkyDB
       rescue
         return false
       end
+    end
+
+    # Looks up lists of actions and properties by name.
+    def ping(options={})
+      send_message(SkyDB::Message::Lookup.new(options))
+      return nil
     end
 
 

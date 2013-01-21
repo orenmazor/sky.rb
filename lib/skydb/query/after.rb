@@ -11,7 +11,6 @@ class SkyDB
 
       def initialize(options={})
         self.action = options[:action]
-        self.action_id = options[:action_id]
         self.function_name = options[:function_name]
       end
     
@@ -25,13 +24,21 @@ class SkyDB
       # The function name to use when generating the code.
       attr_accessor :function_name
 
-      # The name of the action to match. This is a placeholder so that the
-      # query can automatically lookup the action identifier and set it on
-      # the action_id property before codegen.
-      attr_accessor :action
-
-      # The name of the action identifier to match.
-      attr_accessor :action_id
+      # The action to match. If set to a string or id then it is automatically
+      # wrapped in an Action object.
+      attr_reader :action
+      
+      def action=(value)
+        if value.is_a?(String)
+          @action = SkyDB::Action.new(:name => value)
+        elsif value.is_a?(Fixnum)
+          @action = SkyDB::Action.new(:id => value)
+        elsif value.is_a?(SkyDB::Action)
+          @action = value
+        else
+          @action = nil
+        end
+      end
 
 
       ##########################################################################
@@ -47,14 +54,14 @@ class SkyDB
       # Validates that the object is correct before executing a codegen.
       def validate!
         # Require the action identifier.
-        if !(action_id.to_i > 0)
-          raise SkyDB::Query::ValidationError.new("Action identifier required and must be greater than zero for #{self.inspect}.")
+        if action.nil? || action.id.to_i == 0
+          raise SkyDB::Query::ValidationError.new("Action with non-zero identifier required.")
         end
 
         # Require the function name. This should be set automatically by the
         # query.
         if function_name.to_s.index(/^\w+$/).nil?
-          raise SkyDB::Query::ValidationError.new("Invalid function name '#{function_name.to_s}' for #{self.inspect}.")
+          raise SkyDB::Query::ValidationError.new("Invalid function name '#{function_name.to_s}'.")
         end
         
         return nil
@@ -76,7 +83,7 @@ class SkyDB
           body << "repeat"
         end
 
-        body << "  if cursor.event.action_id == #{action_id} then"
+        body << "  if cursor.event.action_id == #{action.id.to_i} then"
         body << "    return true"
         body << "  end"
 

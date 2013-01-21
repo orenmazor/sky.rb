@@ -112,7 +112,8 @@ class SkyDB
 
     # Generates the Lua code that represents the query.
     def codegen
-      # TODO: Lookup all actions & properties.
+      # Lookup all actions & properties.
+      lookup_identifiers()
       
       # Validate everything in query before proceeding.
       validate!
@@ -155,6 +156,24 @@ class SkyDB
     # functions in the query.
     def nextseq
       @sequence = (@sequence || 0) + 1
+    end
+
+    # Looks up all actions and properties that are missing an identifier.
+    def lookup_identifiers
+      # Find all the actions on conditions that are missing an id.
+      actions = []
+      conditions.each do |condition|
+        if !condition.action.nil? && condition.action.id.to_i == 0
+          actions << condition.action
+        end
+      end
+
+      # Lookup all the actions.
+      if actions.length > 0
+        client.lookup(:actions => actions)
+      end
+      
+      return nil
     end
   end
 end

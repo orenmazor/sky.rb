@@ -38,7 +38,7 @@ class SkyDB
   CLIENT_PASSTHROUGH = [
     :host, :host=, :port, :port=,
     :table_name, :table_name=,
-    :multi, :ping,
+    :multi, :ping, :lookup,
     :add_event,
     :create_table, :delete_table, :get_table,
     :add_action, :get_action, :get_actions,
