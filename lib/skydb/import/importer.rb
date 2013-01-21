@@ -52,6 +52,10 @@ class SkyDB
       # A list of files to input from.
       attr_accessor :files
 
+      # A list of header names to use for CSV files. Using this option will
+      # treat the CSV input as not having a header row.
+      attr_accessor :headers
+
 
       ##########################################################################
       #
@@ -85,8 +89,21 @@ class SkyDB
           begin
             SkyDB.multi(:max_count => 1000) do
               # Process each line of the CSV file.
-              CSV.foreach(file, :headers => true) do |input|
-                input = input.to_hash
+              CSV.foreach(file, :headers => headers.nil?) do |row|
+                input = {}
+                
+                # If headers were not specified then use the ones from the
+                # CSV file and just convert the row to a hash.
+                if headers.nil?
+                  input = row.to_hash
+                
+                # If headers were specified then manually convert the row
+                # using the headers provided.
+                else
+                  headers.each_with_index do |header, index|
+                    input[header] = row[index]
+                  end
+                end
                 
                 # Convert input line to a symbolized hash.
                 output = translate(input)
