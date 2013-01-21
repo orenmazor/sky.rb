@@ -58,16 +58,18 @@ class SkyDB
 
       # Updates the action and property identifiers from the returned data.
       def process_response(response)
-        # Update action identifiers.
-        action_ids = response['actionIds']
+        # Update actions.
         actions.each_with_index do |action, index|
-          action.id = action_ids[index].to_i
+          obj = response['actions'][index]
+          action.id = obj.nil? ? 0 : obj['id']
         end
         
-        # Update property identifiers.
-        property_ids = response['propertyIds']
-        propertys.each_with_index do |property, index|
-          property.id = property_ids[index].to_i
+        # Update properties.
+        properties.each_with_index do |property, index|
+          obj = response['properties'][index]
+          property.id = obj.nil? ? 0 : obj['id']
+          property.type = obj.nil? ? :object : SkyDB::Property::Type.decode(obj['type'])
+          property.data_type = obj.nil? ? nil : obj['dataType']
         end
         
         return response
