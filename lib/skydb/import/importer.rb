@@ -85,11 +85,17 @@ class SkyDB
             :format => ('%-40s' % file) + ' |%B| %P%%'
           )
 
+          # Determine column separator by extension.
+          col_sep = ','
+          if File.extname(file) == '.tsv' || File.extname(file) == '.txt'
+            col_sep = "\t"
+          end
+
           file = File.open(file, 'r')
           begin
             SkyDB.multi(:max_count => 1000) do
               # Process each line of the CSV file.
-              CSV.foreach(file, :headers => headers.nil?) do |row|
+              CSV.foreach(file, :headers => headers.nil?, :col_sep => col_sep) do |row|
                 input = {}
                 
                 # If headers were not specified then use the ones from the
