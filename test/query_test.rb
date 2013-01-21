@@ -109,6 +109,6 @@ class TestQuery < MiniTest::Unit::TestCase
           end
         end
       BLOCK
-    assert_equal expected, @query.codegen()
+    assert_equal expected.chomp, @query.codegen()
   end
 end

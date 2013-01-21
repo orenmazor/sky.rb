@@ -9,11 +9,11 @@ class SkyDB
     ##########################################################################
 
     # Initializes the property.
-    def initialize(id=0, type=nil, data_type="String", name=nil)
-      self.id = id
-      self.type = type
-      self.data_type = data_type
-      self.name = name
+    def initialize(options={})
+      self.id = options[:id]
+      self.type = options[:type]
+      self.data_type = options[:data_type]
+      self.name = options[:name]
     end
     
 

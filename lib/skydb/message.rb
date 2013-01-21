@@ -141,4 +141,5 @@ require 'skydb/message/next_actions'
 require 'skydb/message/lua/aggregate'
 
 require 'skydb/message/ping'
+require 'skydb/message/lookup'
 require 'skydb/message/multi'
