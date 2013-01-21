@@ -86,7 +86,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
 
 
   ######################################
-  # Code Generation
+  # Aggregation Generation
   ######################################
 
   def test_simple_codegen
@@ -99,7 +99,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           target.my_alias = cursor.event.bar()
         end
       BLOCK
-    assert_equal expected, @selection.codegen()
+    assert_equal expected, @selection.codegen_aggregate()
   end
 
   def test_count_codegen
@@ -111,7 +111,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           target.bar = (target.bar or 0) + 1
         end
       BLOCK
-    assert_equal expected, @selection.codegen()
+    assert_equal expected, @selection.codegen_aggregate()
   end
 
   def test_sum_codegen
@@ -123,7 +123,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           target.bar = (target.bar or 0) + cursor.event.foo()
         end
       BLOCK
-    assert_equal expected, @selection.codegen()
+    assert_equal expected, @selection.codegen_aggregate()
   end
 
   def test_min_codegen
@@ -137,7 +137,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           end
         end
       BLOCK
-    assert_equal expected, @selection.codegen()
+    assert_equal expected, @selection.codegen_aggregate()
   end
 
   def test_max_codegen
@@ -151,7 +151,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           end
         end
       BLOCK
-    assert_equal expected, @selection.codegen()
+    assert_equal expected, @selection.codegen_aggregate()
   end
 
   def test_grouped_codegen
@@ -171,7 +171,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           target.my_alias = cursor.event.bar()
         end
       BLOCK
-    assert_equal expected, @selection.codegen()
+    assert_equal expected, @selection.codegen_aggregate()
   end
 
   def test_multiple_group_codegen
@@ -201,6 +201,69 @@ class TestQuerySelection < MiniTest::Unit::TestCase
           target.my_alias = cursor.event.bar()
         end
       BLOCK
-    assert_equal expected, @selection.codegen()
+    assert_equal expected, @selection.codegen_aggregate()
+  end
+
+
+  ######################################
+  # Merge Codegen
+  ######################################
+
+  def test_simple_merge_codegen
+    @selection.fields = SkyDB::Query::Selection.parse_fields("foo, sum(bar) my_alias, count(), min(x), max(y)")
+    expected =
+      <<-BLOCK.unindent
+        function merge(results, data)
+          a = results
+          b = data
+          a.foo = b.foo
+          a.my_alias = (a.my_alias or 0) + b.my_alias
+          a.count = (a.count or 0) + b.count
+          if(a.x == nil or a.x > b.x) then
+            a.x = b.x
+          end
+          if(a.y == nil or a.y < b.y) then
+            a.y = b.y
+          end
+        end
+      BLOCK
+    assert_equal expected, @selection.codegen_merge()
+  end
+
+  def test_grouped_merge_codegen
+    @selection = SkyDB::Query::Selection.new.select("sum(foo), count()").group_by(:bar)
+    expected =
+      <<-BLOCK.unindent
+        function merge(results, data)
+          for k0,v0 in pairs(results[k0]) do
+            if results[k0] == nil then results[k0] = {} end
+            a = results[k0]
+            b = data[k0]
+            a.foo = (a.foo or 0) + b.foo
+            a.count = (a.count or 0) + b.count
+          end
+        end
+      BLOCK
+    assert_equal expected, @selection.codegen_merge()
+  end
+  
+  def test_multigroup_merge_codegen
+    @selection = SkyDB::Query::Selection.new.select("sum(foo), count()").group_by(:bar, :baz)
+    expected =
+      <<-BLOCK.unindent
+        function merge(results, data)
+          for k0,v0 in pairs(results[k0]) do
+            if results[k0] == nil then results[k0] = {} end
+            for k1,v1 in pairs(results[k0][k1]) do
+              if results[k0][k1] == nil then results[k0][k1] = {} end
+              a = results[k0][k1]
+              b = data[k0][k1]
+              a.foo = (a.foo or 0) + b.foo
+              a.count = (a.count or 0) + b.count
+            end
+          end
+        end
+      BLOCK
+    assert_equal expected, @selection.codegen_merge()
   end
 end

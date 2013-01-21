@@ -108,7 +108,13 @@ class TestQuery < MiniTest::Unit::TestCase
             end
           end
         end
+
+        function merge(results, data)
+          a = results
+          b = data
+          a.count = (a.count or 0) + b.count
+        end
       BLOCK
-    assert_equal expected.chomp, @query.codegen()
+    assert_equal expected.chomp, @query.codegen().chomp
   end
 end

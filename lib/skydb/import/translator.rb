@@ -52,11 +52,11 @@ class SkyDB
         
         # If this is a string then eval it into a proc.
         if value.is_a?(String)
-          # If there is an output field set then make the lamda an assignment.
+          # If there's no output field set then it's free form.
           if output_field.nil?
             @translate_function = eval("lambda { |input,output| #{value} }")
 
-          # If there's no output field set then it's free form.
+          # If there is an output field set then make the lamda an assignment.
           else
             keys = output_field.is_a?(Array) ? output_field : [output_field]
             keys.map! {|key| "['" + key.gsub("'", "\\'") + "']"}

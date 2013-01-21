@@ -40,6 +40,17 @@ class SkyDB
         return alias_name || expression || aggregation_type.to_s
       end
 
+      # The string used to access the expression.
+      def accessor(options={})
+        prefix = options.delete(:prefix) || 'cursor.event.'
+        
+        if ["action_id", "timestamp"].index(expression)
+          return "#{prefix}#{expression}"
+        else
+          return "#{prefix}#{expression}()"
+        end
+      end
+
 
       ##########################################################################
       #

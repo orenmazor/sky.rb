@@ -86,9 +86,13 @@ class SkyDB
             SkyDB.multi(:max_count => 1000) do
               # Process each line of the CSV file.
               CSV.foreach(file, :headers => true) do |input|
+                input = input.to_hash
+                
                 # Convert input line to a symbolized hash.
                 output = translate(input)
                 output._symbolize_keys!
+                
+                p output
               
                 # Convert hash to an event and send to Sky.
                 event = SkyDB::Event.new(output)
@@ -150,7 +154,15 @@ class SkyDB
         # Parse the transform file.
         transform = {'fields' => {}}.merge(YAML.load(content))
 
+        # Load individual field translations.
         load_transform_fields(transform['fields'])
+        
+        # Load a free-form translate function if specified.
+        if !transform['translate'].nil?
+          @translators << Translator.new(
+            :translate_function => transform['translate']
+          )
+        end
         
         return nil
       end
@@ -202,7 +214,7 @@ class SkyDB
         
         # If it's just a word then find it in the gem.
         if filename.index(/^\w+$/)
-          raise TransformNotFound.new("Named transform not available: #{filename}") unless File.exists?(named_transform_path)
+          raise TransformNotFound.new("Named transform not available: #{filename} (#{named_transform_path})") unless File.exists?(named_transform_path)
           return load_transform(IO.read(named_transform_path))
 
         # Otherwise load it from the present working directory.

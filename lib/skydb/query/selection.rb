@@ -165,8 +165,8 @@ class SkyDB
       # Codegen
       ####################################
 
-      # Generates Lua code based on the items in the selection.
-      def codegen
+      # Generates Lua code for the aggregation based on the selection.
+      def codegen_aggregate
         header, body, footer = "function select(cursor, data)\n", [], "end\n"
       
         # Setup target object.
@@ -175,10 +175,10 @@ class SkyDB
 
         # Initialize groups.
         groups.each do |group|
-          body << "if target[cursor.event.#{group.expression}()] == nil then"
-          body << "  target[cursor.event.#{group.expression}()] = {}"
+          body << "if target[#{group.accessor}] == nil then"
+          body << "  target[#{group.accessor}] = {}"
           body << "end"
-          body << "target = target[cursor.event.#{group.expression}()]"
+          body << "target = target[#{group.accessor}]"
           body << ""
         end
 
@@ -188,24 +188,74 @@ class SkyDB
           
           case field.aggregation_type
           when nil
-            body << "target.#{alias_name} = cursor.event.#{field.expression}()"
+            body << "target.#{alias_name} = #{field.accessor}"
           when :count
             body << "target.#{alias_name} = (target.#{alias_name} or 0) + 1"
           when :sum
-            body << "target.#{alias_name} = (target.#{alias_name} or 0) + cursor.event.#{field.expression}()"
+            body << "target.#{alias_name} = (target.#{alias_name} or 0) + #{field.accessor}"
           when :min
-            body << "if(target.#{alias_name} == nil or target.#{alias_name} > cursor.event.#{field.expression}()) then"
-            body << "  target.#{alias_name} = cursor.event.#{field.expression}()"
+            body << "if(target.#{alias_name} == nil or target.#{alias_name} > #{field.accessor}) then"
+            body << "  target.#{alias_name} = #{field.accessor}"
             body << "end"
           when :max
-            body << "if(target.#{alias_name} == nil or target.#{alias_name} < cursor.event.#{field.expression}()) then"
-            body << "  target.#{alias_name} = cursor.event.#{field.expression}()"
+            body << "if(target.#{alias_name} == nil or target.#{alias_name} < #{field.accessor}) then"
+            body << "  target.#{alias_name} = #{field.accessor}"
             body << "end"
           else
             raise StandardError.new("Invalid aggregation type: #{field.aggregation_type}")
           end
         end
         
+        # Indent body and return.
+        body.map! {|line| "  " + line}
+        return header + body.join("\n") + "\n" + footer
+      end
+
+      # Generates Lua code for the merge function.
+      def codegen_merge
+        header, body, footer = "function merge(results, data)\n", [], "end\n"
+      
+        # Open group loops.
+        groups.each_with_index do |group, index|
+          target = "results" + (0..index).to_a.map {|i| "[k#{i}]"}.join('')
+          body << "#{'  ' * index}for k#{index},v#{index} in pairs(#{target}) do"
+          body << "#{'  ' * index}  if #{target} == nil then #{target} = {} end"
+        end
+
+        indent = '  ' * groups.length
+        body << "#{indent}a = results" + (0...groups.length).to_a.map {|i| "[k#{i}]"}.join('')
+        body << "#{indent}b = data" + (0...groups.length).to_a.map {|i| "[k#{i}]"}.join('')
+
+        # Generate the merge for each field.
+        puts ">>> #{fields}"
+        fields.each do |field|
+          alias_name = field.target_name
+          
+          case field.aggregation_type
+          when nil
+            body << "#{indent}a.#{alias_name} = b.#{alias_name}"
+          when :count
+            body << "#{indent}a.#{alias_name} = (a.#{alias_name} or 0) + b.#{alias_name}"
+          when :sum
+            body << "#{indent}a.#{alias_name} = (a.#{alias_name} or 0) + b.#{alias_name}"
+          when :min
+            body << "#{indent}if(a.#{alias_name} == nil or a.#{alias_name} > b.#{alias_name}) then"
+            body << "#{indent}  a.#{alias_name} = b.#{alias_name}"
+            body << "#{indent}end"
+          when :max
+            body << "#{indent}if(a.#{alias_name} == nil or a.#{alias_name} < b.#{alias_name}) then"
+            body << "#{indent}  a.#{alias_name} = b.#{alias_name}"
+            body << "#{indent}end"
+          else
+            raise StandardError.new("Invalid aggregation type: #{field.aggregation_type}")
+          end
+        end
+
+        # Close group loops.
+        groups.reverse.each_with_index do |group, index|
+          body << "#{'  ' * (groups.length-index-1)}end"
+        end
+
         # Indent body and return.
         body.map! {|line| "  " + line}
         return header + body.join("\n") + "\n" + footer
