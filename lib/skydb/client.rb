@@ -167,7 +167,7 @@ class SkyDB
     end
 
     # Looks up lists of actions and properties by name.
-    def ping(options={})
+    def lookup(options={})
       send_message(SkyDB::Message::Lookup.new(options))
       return nil
     end
@@ -193,9 +193,7 @@ class SkyDB
     #
     # @param [String] selection  a list of properties to select from the database.
     def select(fields)
-      return SkyDB::Query.new(
-        :selection => SkyDB::Query::Selection.parse(fields)
-      )
+      return SkyDB::Query.new(:client => self).select(fields)
     end
 
 
