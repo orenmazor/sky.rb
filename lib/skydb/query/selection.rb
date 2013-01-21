@@ -175,10 +175,10 @@ class SkyDB
 
         # Initialize groups.
         groups.each do |group|
-          body << "if target[cursor.event.#{group.expression}] == nil then"
-          body << "  target[cursor.event.#{group.expression}] = {}"
+          body << "if target[cursor.event.#{group.expression}()] == nil then"
+          body << "  target[cursor.event.#{group.expression}()] = {}"
           body << "end"
-          body << "target = target[cursor.event.#{group.expression}]"
+          body << "target = target[cursor.event.#{group.expression}()]"
           body << ""
         end
 
@@ -188,18 +188,18 @@ class SkyDB
           
           case field.aggregation_type
           when nil
-            body << "target.#{alias_name} = cursor.event.#{field.expression}"
+            body << "target.#{alias_name} = cursor.event.#{field.expression}()"
           when :count
             body << "target.#{alias_name} = (target.#{alias_name} or 0) + 1"
           when :sum
-            body << "target.#{alias_name} = (target.#{alias_name} or 0) + cursor.event.#{field.expression}"
+            body << "target.#{alias_name} = (target.#{alias_name} or 0) + cursor.event.#{field.expression}()"
           when :min
-            body << "if(target.#{alias_name} == nil or target.#{alias_name} > cursor.event.#{field.expression}) then"
-            body << "  target.#{alias_name} = cursor.event.#{field.expression}"
+            body << "if(target.#{alias_name} == nil or target.#{alias_name} > cursor.event.#{field.expression}()) then"
+            body << "  target.#{alias_name} = cursor.event.#{field.expression}()"
             body << "end"
           when :max
-            body << "if(target.#{alias_name} == nil or target.#{alias_name} < cursor.event.#{field.expression}) then"
-            body << "  target.#{alias_name} = cursor.event.#{field.expression}"
+            body << "if(target.#{alias_name} == nil or target.#{alias_name} < cursor.event.#{field.expression}()) then"
+            body << "  target.#{alias_name} = cursor.event.#{field.expression}()"
             body << "end"
           else
             raise StandardError.new("Invalid aggregation type: #{field.aggregation_type}")

@@ -95,8 +95,8 @@ class TestQuerySelection < MiniTest::Unit::TestCase
       <<-BLOCK.unindent
         function select(cursor, data)
           target = data
-          target.foo = cursor.event.foo
-          target.my_alias = cursor.event.bar
+          target.foo = cursor.event.foo()
+          target.my_alias = cursor.event.bar()
         end
       BLOCK
     assert_equal expected, @selection.codegen()
@@ -120,7 +120,7 @@ class TestQuerySelection < MiniTest::Unit::TestCase
       <<-BLOCK.unindent
         function select(cursor, data)
           target = data
-          target.bar = (target.bar or 0) + cursor.event.foo
+          target.bar = (target.bar or 0) + cursor.event.foo()
         end
       BLOCK
     assert_equal expected, @selection.codegen()
@@ -132,8 +132,8 @@ class TestQuerySelection < MiniTest::Unit::TestCase
       <<-BLOCK.unindent
         function select(cursor, data)
           target = data
-          if(target.bar == nil or target.bar > cursor.event.foo) then
-            target.bar = cursor.event.foo
+          if(target.bar == nil or target.bar > cursor.event.foo()) then
+            target.bar = cursor.event.foo()
           end
         end
       BLOCK
@@ -146,8 +146,8 @@ class TestQuerySelection < MiniTest::Unit::TestCase
       <<-BLOCK.unindent
         function select(cursor, data)
           target = data
-          if(target.bar == nil or target.bar > cursor.event.foo) then
-            target.bar = cursor.event.foo
+          if(target.bar == nil or target.bar > cursor.event.foo()) then
+            target.bar = cursor.event.foo()
           end
         end
       BLOCK
@@ -162,13 +162,13 @@ class TestQuerySelection < MiniTest::Unit::TestCase
         function select(cursor, data)
           target = data
           
-          if target[cursor.event.baz] == nil then
-            target[cursor.event.baz] = {}
+          if target[cursor.event.baz()] == nil then
+            target[cursor.event.baz()] = {}
           end
-          target = target[cursor.event.baz]
+          target = target[cursor.event.baz()]
           
-          target.foo = cursor.event.foo
-          target.my_alias = cursor.event.bar
+          target.foo = cursor.event.foo()
+          target.my_alias = cursor.event.bar()
         end
       BLOCK
     assert_equal expected, @selection.codegen()
@@ -182,23 +182,23 @@ class TestQuerySelection < MiniTest::Unit::TestCase
         function select(cursor, data)
           target = data
           
-          if target[cursor.event.aaa] == nil then
-            target[cursor.event.aaa] = {}
+          if target[cursor.event.aaa()] == nil then
+            target[cursor.event.aaa()] = {}
           end
-          target = target[cursor.event.aaa]
+          target = target[cursor.event.aaa()]
           
-          if target[cursor.event.bbb] == nil then
-            target[cursor.event.bbb] = {}
+          if target[cursor.event.bbb()] == nil then
+            target[cursor.event.bbb()] = {}
           end
-          target = target[cursor.event.bbb]
+          target = target[cursor.event.bbb()]
           
-          if target[cursor.event.ccc] == nil then
-            target[cursor.event.ccc] = {}
+          if target[cursor.event.ccc()] == nil then
+            target[cursor.event.ccc()] = {}
           end
-          target = target[cursor.event.ccc]
+          target = target[cursor.event.ccc()]
           
-          target.foo = cursor.event.foo
-          target.my_alias = cursor.event.bar
+          target.foo = cursor.event.foo()
+          target.my_alias = cursor.event.bar()
         end
       BLOCK
     assert_equal expected, @selection.codegen()

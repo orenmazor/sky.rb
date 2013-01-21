@@ -15,7 +15,6 @@ class SkyDB
         self.expression = options[:expression]
         self.alias_name = options[:alias_name]
         self.aggregation_type = options[:aggregation_type]
-        self.data_type = options[:data_type]
       end
     
 
@@ -33,10 +32,6 @@ class SkyDB
 
       # The type of the aggregation used to process the property.
       attr_accessor :aggregation_type
-
-      # The data type of the expression. This is especially important when
-      # accessing string data since it needs to be handled differently in Sky.
-      attr_accessor :data_type
 
       # The final computed name of the field. It is named after the alias name
       # if provided, otherwise defaults to the expression. If neither the
