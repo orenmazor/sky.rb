@@ -182,7 +182,7 @@ class SkyDB
       # Find all the actions on conditions that are missing an id.
       actions = []
       conditions.each do |condition|
-        if !condition.action.nil? && condition.action.id.to_i == 0
+        if condition.action.is_a?(SkyDB::Action) && condition.action.id.to_i == 0
           actions << condition.action
         end
       end

@@ -57,4 +57,15 @@ class TestQueryAfter < MiniTest::Unit::TestCase
       BLOCK
     assert_equal expected, @after.codegen()
   end
+
+  def test_codegen_enter
+    @after = SkyDB::Query::After.new(:action => :enter, :function_name => "foo")
+    expected =
+      <<-BLOCK.unindent
+        function foo(cursor, data)
+          return (cursor.session_event_index == 0)
+        end
+      BLOCK
+    assert_equal expected, @after.codegen()
+  end
 end

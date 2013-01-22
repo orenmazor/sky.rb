@@ -29,7 +29,9 @@ class SkyDB
       attr_reader :action
       
       def action=(value)
-        if value.is_a?(String)
+        if value.is_a?(Symbol)
+          @action = :enter
+        elsif value.is_a?(String)
           @action = SkyDB::Action.new(:name => value)
         elsif value.is_a?(Fixnum)
           @action = SkyDB::Action.new(:id => value)
@@ -76,15 +78,19 @@ class SkyDB
       def codegen(options={})
         header, body, footer = "function #{function_name.to_s}(cursor, data)\n", [], "end\n"
       
-        # Only move to the next event if directed to by the options.
-        body << "repeat"
-        body << "  if cursor.event.action_id == #{action.id.to_i} then"
-        body << "    cursor:next()"
-        body << "    return true"
-        body << "  end"
-        body << "until not cursor:next()"
-
-        body << "return false"
+        # If the action is :enter then just check for the beginning of a session.
+        if action == :enter
+          body << "return (cursor.session_event_index == 0)"
+        else
+          # Only move to the next event if directed to by the options.
+          body << "repeat"
+          body << "  if cursor.event.action_id == #{action.id.to_i} then"
+          body << "    cursor:next()"
+          body << "    return true"
+          body << "  end"
+          body << "until not cursor:next()"
+          body << "return false"
+        end
 
         # Indent body and return.
         body.map! {|line| "  " + line}
