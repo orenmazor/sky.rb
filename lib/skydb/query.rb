@@ -7,7 +7,7 @@ class SkyDB
   # processed and retrieved from the database. It is inspired by ActiveRecord
   # in the sense that commands can be chained together.
   #
-  # The query is not executed until the results() method is called.
+  # The query is not executed until the execute() method is called.
   class Query
     ##########################################################################
     #
@@ -93,11 +93,11 @@ class SkyDB
 
 
     ####################################
-    # Results
+    # Execution
     ####################################
 
     # Executes the query and returns the resulting data.
-    def results
+    def execute
       # Generate the Lua code for this query.
       code = codegen()
       

@@ -24,7 +24,11 @@ command :import do |c|
   c.option('--table STRING', 'The name of the table to import to.')
   c.option('--format STRING', 'The YAML format file to import with.')
   c.option('--headers STRING', 'A comma-delimited list of headers to use.')
+  c.option('--append', 'Appends to an existing database if one exists.')
+  c.option('--overwrite', 'Overwrites an existing database if one exists.')
   c.when_called do|args, options|
+    abort("You cannot specify --append and --overwrite at the same time.") if options.append && options.overwrite
+
     # Check if the server is running.
     if !SkyDB.ping
       puts "Sky is not currently running on #{SkyDB.client.host}:#{SkyDB.client.port}."
@@ -59,11 +63,19 @@ command :import do |c|
     
     # If it does exist, ask if the import should append.
     else
-      print "'#{importer.table_name}' already exists. Append or overwrite? [Ao] "
-      c = STDIN.gets.chomp.upcase[0]
-      if c == 'O'
-        SkyDB.delete_table(SkyDB::Table.new(importer.table_name))
-        SkyDB.create_table(SkyDB::Table.new(importer.table_name))
+      if !options.append
+        c = nil
+        if options.overwrite
+          c = 'O'
+        else
+          print "'#{importer.table_name}' already exists. Append or overwrite? [Ao] "
+          c = STDIN.gets.chomp.upcase[0]
+        end
+        
+        if c == 'O'
+          SkyDB.delete_table(SkyDB::Table.new(importer.table_name))
+          SkyDB.create_table(SkyDB::Table.new(importer.table_name))
+        end
       end
     end
     
