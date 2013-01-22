@@ -62,8 +62,13 @@ class TestQuery < MiniTest::Unit::TestCase
   ######################################
 
   def test_after
-    @query.select('count()').after(:action => 'foo')
+    @query.select('count()').after('foo')
     assert_equal :count, @query.selection.fields[0].aggregation_type
+    assert_equal 'foo', @query.conditions[0].action.name
+  end
+
+  def test_after_with_hash
+    @query.select('count()').after(:action => 'foo')
     assert_equal 'foo', @query.conditions[0].action.name
   end
 
@@ -73,7 +78,7 @@ class TestQuery < MiniTest::Unit::TestCase
   ######################################
 
   def test_codegen
-    @query.select('count()').after(:action => 10).after(:action => 20)
+    @query.select('count()').after(10).after(20)
     expected =
       <<-BLOCK.unindent
         function select(cursor, data)

@@ -9,7 +9,8 @@ class SkyDB
       #
       ##########################################################################
 
-      def initialize(options={})
+      def initialize(action=nil, options={})
+        options.merge!(action.is_a?(Hash) ? action : {:action => action})
         self.action = options[:action]
         self.function_name = options[:function_name]
       end
