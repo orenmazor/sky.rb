@@ -115,6 +115,8 @@ class SkyDB
                 output = translate(input)
                 output._symbolize_keys!
                 
+                # p output
+                
                 # Convert hash to an event and send to Sky.
                 event = SkyDB::Event.new(output)
 
