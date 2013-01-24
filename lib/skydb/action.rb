@@ -53,5 +53,13 @@ class SkyDB
     def to_msgpack
       return {id:id, name:name}.to_msgpack
     end
+
+    # Encodes the action into JSON format.
+    def to_json(*a)
+      {
+        'id' => id,
+        'name' => name
+      }.to_json(*a)
+    end
   end
 end

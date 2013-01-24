@@ -2,6 +2,7 @@ require 'date'
 require 'msgpack'
 require 'socket'
 require 'treetop'
+require 'json'
 
 require 'skydb/action'
 require 'skydb/client'

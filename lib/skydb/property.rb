@@ -89,5 +89,15 @@ class SkyDB
         name:name
       }.to_msgpack
     end
+
+    # Encodes the property into JSON format.
+    def to_json(*a)
+      {
+        'id' => id,
+        'type' => type,
+        'dataType' => data_type,
+        'name' => name
+      }.to_json(*a)
+    end
   end
 end

@@ -65,5 +65,12 @@ class SkyDB
         tablet_count: tablet_count
       }.to_msgpack
     end
+
+    # Encodes the table into JSON format.
+    def to_json(*a)
+      {
+        'name' => name
+      }.to_json(*a)
+    end
   end
 end
