@@ -71,9 +71,14 @@ class SkyDB
     # Retrieves an individual table from the server, if it exists. Otherwise
     # returns nil.
     #
-    # @param [Fixnum] action_id  the identifier of the action to retrieve.
-    def get_table(action_id, options={})
-      return send_message(SkyDB::Message::GetTable.new(action_id, options))
+    # @param [Fixnum] name  the table name to retrieve.
+    def get_table(name, options={})
+      return send_message(SkyDB::Message::GetTable.new(name, options))
+    end
+
+    # Retrieves a list of all tables on the server.
+    def get_tables(options={})
+      return send_message(SkyDB::Message::GetTables.new(options))
     end
 
 

@@ -126,6 +126,7 @@ end
 require 'skydb/message/create_table'
 require 'skydb/message/delete_table'
 require 'skydb/message/get_table'
+require 'skydb/message/get_tables'
 
 require 'skydb/message/add_action'
 require 'skydb/message/get_action'

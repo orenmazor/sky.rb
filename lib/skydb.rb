@@ -40,7 +40,7 @@ class SkyDB
     :table_name, :table_name=,
     :multi, :ping, :lookup,
     :add_event,
-    :create_table, :delete_table, :get_table,
+    :create_table, :delete_table, :get_table, :get_tables,
     :add_action, :get_action, :get_actions,
     :add_property, :get_property, :get_properties,
     :next_actions,
