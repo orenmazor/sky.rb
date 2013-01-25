@@ -11,6 +11,7 @@ class SkyDB
       #
       ##########################################################################
 
+      class UnsupportedFileType < StandardError; end
       class TransformNotFound < StandardError; end
       
 
@@ -67,7 +68,7 @@ class SkyDB
       # Import
       ##################################
     
-      # Imports the rows from a list of files.
+      # Imports records from a list of files.
       #
       # @param [Array]  a list of files to import.
       def import(files)
@@ -85,57 +86,29 @@ class SkyDB
             :format => ('%-40s' % file) + ' |%B| %P%%'
           )
 
-          # Determine column separator by extension.
-          col_sep = ','
-          if File.extname(file) == '.tsv' || File.extname(file) == '.txt'
-            col_sep = "\t"
-          end
-
-          file = File.open(file, 'r')
-          begin
-            SkyDB.multi(:max_count => 1000) do
-              # Process each line of the CSV file.
-              CSV.foreach(file, :headers => headers.nil?, :col_sep => col_sep) do |row|
-                input = {}
-                
-                # If headers were not specified then use the ones from the
-                # CSV file and just convert the row to a hash.
-                if headers.nil?
-                  input = row.to_hash
-                
-                # If headers were specified then manually convert the row
-                # using the headers provided.
-                else
-                  headers.each_with_index do |header, index|
-                    input[header] = row[index]
-                  end
-                end
-                
-                # Convert input line to a symbolized hash.
-                output = translate(input)
-                output._symbolize_keys!
-                
-                # p output
-                
+          SkyDB.multi(:max_count => 1000) do
+            each_record(file) do |input|
+              # Convert input line to a symbolized hash.
+              output = translate(input)
+              output._symbolize_keys!
+              
+              # p output
+              
+              if !(output[:object_id] > 0)
+                progress_bar.clear()
+                $stderr.puts "[ERROR] Invalid object id on line #{$.}: '#{output[:object_id]}'"
+              elsif output[:timestamp].nil?
+                progress_bar.clear()
+                $stderr.puts "[ERROR] Invalid timestamp on line #{$.}: '#{output[:timestamp]}'"
+              else
                 # Convert hash to an event and send to Sky.
                 event = SkyDB::Event.new(output)
-
-                if !(event.object_id > 0)
-                  progress_bar.clear()
-                  puts "[ERROR] Invalid object id on line #{$.}."
-                elsif event.timestamp.nil?
-                  progress_bar.clear()
-                  puts "[ERROR] Invalid timestamp on line #{$.}."
-                else
-                  SkyDB.add_event(event)
-                end
-              
-                # Update progress bar.
-                progress_bar.increment()
+                SkyDB.add_event(event)
               end
+            
+              # Update progress bar.
+              progress_bar.increment()
             end
-          ensure
-            file.close
           end
 
           # Finish progress bar.
@@ -143,6 +116,64 @@ class SkyDB
         end
         
         return nil
+      end
+
+
+      ##################################
+      # Import
+      ##################################
+    
+      # Executes a block for each record in a given file. A record is defined
+      # by the file's type (:csv, :tsv, :json).
+      #
+      # @param [String] file  the path to the file to iterate over.
+      # @param [String] file_type  the type of file to process.
+      def each_record(file, file_type=nil)
+        # Determine file type automatically if not passed in.
+        file_type ||= 
+          case File.extname(file)
+          when '.tsv' then :tsv
+          when '.txt' then :tsv
+          when '.json' then :json
+          else :csv
+          end
+        
+        # Process the record by file type.
+        case file_type
+        when :csv then each_text_record(file, ",", &Proc.new)
+        when :tsv then each_text_record(file, "\t", &Proc.new)
+        when :json then each_json_record(file, "\t", &Proc.new)
+        else raise UnsupportedFileType.new("File type not supported by importer: #{file_type || File.extname(file)}")
+        end
+        
+        return nil
+      end
+      
+      # Executes a block for each line of a delimited flat file format
+      # (CSV, TSV).
+      #
+      # @param [String] file  the path to the file to iterate over.
+      # @param [String] col_sep  the column separator.
+      def each_text_record(file, col_sep)
+        # Process each line of the CSV file.
+        CSV.foreach(file, :headers => headers.nil?, :col_sep => col_sep) do |row|
+          record = nil
+          
+          # If headers were not specified then use the ones from the
+          # CSV file and just convert the row to a hash.
+          if headers.nil?
+            record = row.to_hash
+          
+          # If headers were specified then manually convert the row
+          # using the headers provided.
+          else
+            headers.each_with_index do |header, index|
+              record[header] = row[index]
+            end
+          end
+
+          yield(record)
+        end
       end
 
 
