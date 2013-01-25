@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TestQueryAfter < MiniTest::Unit::TestCase
+class TestQueryAfterCondition < MiniTest::Unit::TestCase
   ##############################################################################
   #
   # Setup / Teardown
@@ -8,7 +8,7 @@ class TestQueryAfter < MiniTest::Unit::TestCase
   ##############################################################################
 
   def setup
-    @after = SkyDB::Query::After.new()
+    @after = SkyDB::Query::AfterCondition.new()
   end
 
 
@@ -24,14 +24,14 @@ class TestQueryAfter < MiniTest::Unit::TestCase
 
   def test_validate_action
     e = assert_raises(SkyDB::Query::ValidationError) do
-      SkyDB::Query::After.new(:function_name => "foo").validate!
+      SkyDB::Query::AfterCondition.new(:function_name => "foo").validate!
     end
     assert_match /^Action with non-zero identifier required/, e.message
   end
   
   def test_validate_function_name
     e = assert_raises(SkyDB::Query::ValidationError) do
-      SkyDB::Query::After.new(:action => 10).validate!
+      SkyDB::Query::AfterCondition.new(:action => 10).validate!
     end
     assert_match /^Invalid function name ''/, e.message
   end
@@ -42,7 +42,7 @@ class TestQueryAfter < MiniTest::Unit::TestCase
   ######################################
 
   def test_codegen
-    @after = SkyDB::Query::After.new(:action => 10, :function_name => "foo")
+    @after = SkyDB::Query::AfterCondition.new(:action => 10, :function_name => "foo")
     expected =
       <<-BLOCK.unindent
         function foo(cursor, data)
@@ -59,7 +59,7 @@ class TestQueryAfter < MiniTest::Unit::TestCase
   end
 
   def test_codegen_enter
-    @after = SkyDB::Query::After.new(:action => :enter, :function_name => "foo")
+    @after = SkyDB::Query::AfterCondition.new(:action => :enter, :function_name => "foo")
     expected =
       <<-BLOCK.unindent
         function foo(cursor, data)

@@ -2,7 +2,7 @@ class SkyDB
   class Query
     # The 'after' condition filters out selection only after the condition
     # has been fulfilled.
-    class After
+    class AfterCondition
       ##########################################################################
       #
       # Constructor

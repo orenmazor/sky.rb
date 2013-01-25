@@ -1,5 +1,5 @@
 require 'skydb/query/selection'
-require 'skydb/query/after'
+require 'skydb/query/after_condition'
 require 'skydb/query/validation_error'
 
 class SkyDB
@@ -77,7 +77,7 @@ class SkyDB
     #
     # @return [Query]  The query object is returned.
     def after(options={})
-      conditions << SkyDB::Query::After.new(options)
+      conditions << SkyDB::Query::AfterCondition.new(options)
       return self
     end
 
