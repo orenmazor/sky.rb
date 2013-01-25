@@ -3,18 +3,26 @@ fields:
   timestamp: timestamp:date
 
 translate: |
-  input.each_pair do |k, v|
-    m, prefix, field, data_type  = *k.match(/^(?:(action|data)\.)?(\w+)(?:\:(\w+))?$/)
-    next unless ["object_id", "timestamp"].index(field).nil?
+  def process(_input, _output)
+    _input.each_pair do |k, v|
+      if v.is_a?(Hash)
+        _output[k] = {}
+        process(v, _output)
+      else
+        m, prefix, field, data_type  = *k.match(/^(?:(action|data)\.)?(\w+)(?:\:(\w+))?$/)
+        next unless ["object_id", "timestamp"].index(field).nil?
     
-    output[prefix] ||= {} unless prefix.nil?
-    target = prefix.nil? ? output : output[prefix]
+        _output[prefix] ||= {} unless prefix.nil?
+        target = prefix.nil? ? _output : _output[prefix]
 
-    target[field] = case data_type.to_s.downcase
-    when "int" then v.to_i
-    when "float" then v.to_f
-    when "boolean" then (v.downcase == "true" || v.downcase == "yes" || v.downcase == "y")
-    when "date" then Chronic.parse(v)
-    else v.to_s
+        target[field] = case data_type.to_s.downcase
+        when "int" then v.to_i
+        when "float" then v.to_f
+        when "boolean" then (v.downcase == "true" || v.downcase == "yes" || v.downcase == "y")
+        when "date" then Chronic.parse(v)
+        else v.to_s
+        end
+      end
     end
   end
+  process(input, output)

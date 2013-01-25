@@ -8,6 +8,7 @@ PATH
       ruby-progressbar (~> 1.0.2)
       treetop (~> 1.4.12)
       unindentable (~> 0.1.0)
+      yajl-ruby (~> 1.1.0)
 
 GEM
   remote: http://rubygems.org/
@@ -28,6 +29,7 @@ GEM
       polyglot
       polyglot (>= 0.3.1)
     unindentable (0.1.0)
+    yajl-ruby (1.1.0)
 
 PLATFORMS
   ruby

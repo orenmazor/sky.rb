@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
   s.add_dependency('ruby-progressbar', '~> 1.0.2')
   s.add_dependency('chronic', '~> 0.9.0')
   s.add_dependency('treetop', '~> 1.4.12')
+  s.add_dependency('yajl-ruby', '~> 1.1.0')
 
   s.add_development_dependency('rake', '~> 0.9.2.2')
   s.add_development_dependency('minitest', '~> 3.5.0')

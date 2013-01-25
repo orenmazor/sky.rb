@@ -1,0 +1,5 @@
+object_id,timestamp,action.name,action.purchase_amount:float,data.gender,data.age:int,data.rewards_member:boolean
+100,2012-01-01T00:00:00Z,/index.html,0,male,35,false
+100,2012-01-01T00:01:00Z,/signup.html,9.95,male,35,true
+100,2012-01-01T00:02:00Z,/buy.html,9.95,male,35,true
+101,2012-02-01T07:35:00Z,/buy.html,100.00,female,23,false

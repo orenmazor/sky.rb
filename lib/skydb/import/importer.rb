@@ -1,5 +1,7 @@
 require 'yaml'
 require 'csv'
+require 'yajl'
+require 'open-uri'
 require 'ruby-progressbar'
 
 class SkyDB
@@ -93,7 +95,7 @@ class SkyDB
               output._symbolize_keys!
               
               # p output
-              
+
               if !(output[:object_id] > 0)
                 progress_bar.clear()
                 $stderr.puts "[ERROR] Invalid object id on line #{$.}: '#{output[:object_id]}'"
@@ -112,7 +114,7 @@ class SkyDB
           end
 
           # Finish progress bar.
-          progress_bar.finish()        
+          progress_bar.finish() unless progress_bar.finished?
         end
         
         return nil
@@ -142,7 +144,7 @@ class SkyDB
         case file_type
         when :csv then each_text_record(file, ",", &Proc.new)
         when :tsv then each_text_record(file, "\t", &Proc.new)
-        when :json then each_json_record(file, "\t", &Proc.new)
+        when :json then each_json_record(file, &Proc.new)
         else raise UnsupportedFileType.new("File type not supported by importer: #{file_type || File.extname(file)}")
         end
         
@@ -172,6 +174,18 @@ class SkyDB
             end
           end
 
+          yield(record)
+        end
+      end
+
+      # Executes a block for each line of a JSON file.
+      #
+      # @param [String] file  the path to the file to iterate over.
+      def each_json_record(file)
+        io = open(file)
+
+        # Process each line of the JSON file.
+        Yajl::Parser.parse(io) do |record|
           yield(record)
         end
       end
@@ -233,7 +247,6 @@ class SkyDB
       # @param [Hash]  the hash of transform info.
       # @param [Array]  the path of fields.
       def load_transform_fields(fields, path=nil)
-        
         # Convert each field to a translator.
         fields.each_pair do |key, value|
           translator = Translator.new(:output_field => (path.nil? ? key : path.clone.concat([key])))
