@@ -2,7 +2,7 @@ class SkyDB
   class Query
     # The 'after' condition filters out selection only after the condition
     # has been fulfilled.
-    class AfterCondition
+    class AfterCondition < SkyDB::Query::Condition
       ##########################################################################
       #
       # Constructor
@@ -11,38 +11,9 @@ class SkyDB
 
       def initialize(action=nil, options={})
         options.merge!(action.is_a?(Hash) ? action : {:action => action})
-        self.action = options[:action]
-        self.function_name = options[:function_name]
+        super(options)
       end
     
-
-      ##########################################################################
-      #
-      # Attributes
-      #
-      ##########################################################################
-
-      # The function name to use when generating the code.
-      attr_accessor :function_name
-
-      # The action to match. If set to a string or id then it is automatically
-      # wrapped in an Action object.
-      attr_reader :action
-      
-      def action=(value)
-        if value.is_a?(Symbol)
-          @action = :enter
-        elsif value.is_a?(String)
-          @action = SkyDB::Action.new(:name => value)
-        elsif value.is_a?(Fixnum)
-          @action = SkyDB::Action.new(:id => value)
-        elsif value.is_a?(SkyDB::Action)
-          @action = value
-        else
-          @action = nil
-        end
-      end
-
 
       ##########################################################################
       #
@@ -56,21 +27,18 @@ class SkyDB
 
       # Validates that the object is correct before executing a codegen.
       def validate!
-        # Require the action identifier.
-        if action.nil? || action.id.to_i == 0
-          raise SkyDB::Query::ValidationError.new("Action with non-zero identifier required.")
+        # Do not allow the :enter action. That is reserved for the 'On'
+        # condition.
+        if action == :enter
+          raise SkyDB::Query::ValidationError.new("Enter actions cannot be used with an 'after' condition. Please use an 'on' condition instead.")
         end
 
-        # Require the function name. This should be set automatically by the
-        # query.
-        if function_name.to_s.index(/^\w+$/).nil?
-          raise SkyDB::Query::ValidationError.new("Invalid function name '#{function_name.to_s}'.")
-        end
+        super
         
         return nil
       end
-      
-      
+
+
       ##################################
       # Codegen
       ##################################
@@ -79,19 +47,14 @@ class SkyDB
       def codegen(options={})
         header, body, footer = "function #{function_name.to_s}(cursor, data)\n", [], "end\n"
       
-        # If the action is :enter then just check for the beginning of a session.
-        if action == :enter
-          body << "return (cursor.session_event_index == 0)"
-        else
-          # Only move to the next event if directed to by the options.
-          body << "repeat"
-          body << "  if cursor.event.action_id == #{action.id.to_i} then"
-          body << "    cursor:next()"
-          body << "    return true"
-          body << "  end"
-          body << "until not cursor:next()"
-          body << "return false"
-        end
+        # Find the matching event and then move to the next one for selection.
+        body << "repeat"
+        body << "  if cursor.event.action_id == #{action.id.to_i} then"
+        body << "    cursor:next()"
+        body << "    return true"
+        body << "  end"
+        body << "until not cursor:next()"
+        body << "return false"
 
         # Indent body and return.
         body.map! {|line| "  " + line}

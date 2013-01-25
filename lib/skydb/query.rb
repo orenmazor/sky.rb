@@ -1,5 +1,7 @@
 require 'skydb/query/selection'
+require 'skydb/query/condition'
 require 'skydb/query/after_condition'
+require 'skydb/query/on_condition'
 require 'skydb/query/validation_error'
 
 class SkyDB
@@ -78,6 +80,16 @@ class SkyDB
     # @return [Query]  The query object is returned.
     def after(options={})
       conditions << SkyDB::Query::AfterCondition.new(options)
+      return self
+    end
+
+    # Adds an 'on' condition to the query.
+    #
+    # @param [Hash] options  The options to pass to the 'on' condition.
+    #
+    # @return [Query]  The query object is returned.
+    def on(options={})
+      conditions << SkyDB::Query::OnCondition.new(options)
       return self
     end
 

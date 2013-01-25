@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TestQueryAfterCondition < MiniTest::Unit::TestCase
+class TestQueryOnCondition < MiniTest::Unit::TestCase
   ##############################################################################
   #
   # Setup / Teardown
@@ -8,7 +8,7 @@ class TestQueryAfterCondition < MiniTest::Unit::TestCase
   ##############################################################################
 
   def setup
-    @after = SkyDB::Query::AfterCondition.new()
+    @condition = SkyDB::Query::OnCondition.new()
   end
 
 
@@ -24,21 +24,14 @@ class TestQueryAfterCondition < MiniTest::Unit::TestCase
 
   def test_validate_action
     e = assert_raises(SkyDB::Query::ValidationError) do
-      SkyDB::Query::AfterCondition.new(:function_name => "foo").validate!
+      SkyDB::Query::OnCondition.new(:function_name => "foo").validate!
     end
     assert_match /^Action with non-zero identifier required/, e.message
   end
 
-  def test_validate_enter_action
-    e = assert_raises(SkyDB::Query::ValidationError) do
-      SkyDB::Query::AfterCondition.new(:action => :enter, :function_name => "foo").validate!
-    end
-    assert_equal "Enter actions cannot be used with an 'after' condition. Please use an 'on' condition instead.", e.message
-  end
-  
   def test_validate_function_name
     e = assert_raises(SkyDB::Query::ValidationError) do
-      SkyDB::Query::AfterCondition.new(:action => 10).validate!
+      SkyDB::Query::OnCondition.new(:action => 10).validate!
     end
     assert_match /^Invalid function name ''/, e.message
   end
@@ -49,19 +42,29 @@ class TestQueryAfterCondition < MiniTest::Unit::TestCase
   ######################################
 
   def test_codegen
-    @after = SkyDB::Query::AfterCondition.new(:action => 10, :function_name => "foo")
+    @condition = SkyDB::Query::OnCondition.new(:action => 10, :function_name => "foo")
     expected =
       <<-BLOCK.unindent
         function foo(cursor, data)
           repeat
             if cursor.event.action_id == 10 then
-              cursor:next()
               return true
             end
           until not cursor:next()
           return false
         end
       BLOCK
-    assert_equal expected, @after.codegen()
+    assert_equal expected, @condition.codegen()
+  end
+
+  def test_codegen_enter
+    @condition = SkyDB::Query::OnCondition.new(:action => :enter, :function_name => "foo")
+    expected =
+      <<-BLOCK.unindent
+        function foo(cursor, data)
+          return (cursor.session_event_index == 0)
+        end
+      BLOCK
+    assert_equal expected, @condition.codegen()
   end
 end
