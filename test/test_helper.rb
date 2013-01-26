@@ -1,3 +1,10 @@
+require 'simplecov'
+SimpleCov.start do
+  add_group "Messages", "skydb/message"
+  add_group "Query", "skydb/query"
+  add_group "Importer", "skydb/import"
+end
+
 require 'bundler/setup'
 require 'minitest/autorun'
 require 'mocha'

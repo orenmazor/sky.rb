@@ -22,7 +22,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency('rake', '~> 0.9.2.2')
   s.add_development_dependency('minitest', '~> 3.5.0')
   s.add_development_dependency('mocha', '~> 0.12.5')
-  s.add_dependency('unindentable', '~> 0.1.0')
+  s.add_development_dependency('unindentable', '~> 0.1.0')
+  s.add_development_dependency('simplecov', '~> 0.7.1')
 
   s.test_files   = Dir.glob("test/**/*")
   s.files        = Dir.glob("lib/**/*") + %w(README.md)
