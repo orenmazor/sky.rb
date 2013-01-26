@@ -122,7 +122,7 @@ class SkyDB
 
 
       ##################################
-      # Import
+      # Iteration
       ##################################
     
       # Executes a block for each record in a given file. A record is defined
