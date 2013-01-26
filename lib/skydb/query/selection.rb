@@ -73,8 +73,10 @@ class SkyDB
       ##########################################################################
 
       def initialize(options={})
+        self.query = options[:query]
         self.fields = options[:fields] || []
         self.groups = options[:groups] || []
+        self.conditions = options[:conditions] || []
       end
     
 
@@ -84,11 +86,18 @@ class SkyDB
       #
       ##########################################################################
 
+      # The query this selection is attached to.
+      attr_accessor :query
+
       # A list of fields that will be returned from the server.
       attr_accessor :fields
 
       # A list of expressions to group the returned data by.
       attr_accessor :groups
+
+      # A list of conditions that must be fulfilled before performing a
+      # selection.
+      attr_accessor :conditions
 
 
       ##########################################################################
@@ -139,6 +148,26 @@ class SkyDB
         return self
       end
 
+      # Adds an 'after' condition to the query.
+      #
+      # @param [Hash] options  The options to pass to the 'after' condition.
+      #
+      # @return [Query]  The query object is returned.
+      def after(options={})
+        conditions << SkyDB::Query::AfterCondition.new(options)
+        return self
+      end
+
+      # Adds an 'on' condition to the query.
+      #
+      # @param [Hash] options  The options to pass to the 'on' condition.
+      #
+      # @return [Query]  The query object is returned.
+      def on(options={})
+        conditions << SkyDB::Query::OnCondition.new(options)
+        return self
+      end
+
 
       ####################################
       # Validation
@@ -164,6 +193,16 @@ class SkyDB
       ####################################
       # Codegen
       ####################################
+
+      # Generates Lua code for the entire selection including conditions and
+      # merging.
+      def codegen
+        return [
+          codegen_select(),
+          codegen_select_all(),
+          codegen_merge()
+          ].join("\n")
+      end
 
       # Generates Lua code for the aggregation based on the selection.
       def codegen_select
@@ -213,6 +252,42 @@ class SkyDB
         return header + body.join("\n") + "\n" + footer
       end
 
+      # Generates Lua code for the aggregation based on the selection.
+      def codegen_select_all
+        header, body, footer = "function selectAll(cursor, data)\n", [], "end\n"
+      
+        # Generate the invocation of the conditions.
+        conditional_functions = codegen_conditional_functions()
+        conditionals = conditions.map {|condition| "#{condition.function_name}(cursor, data)"}.join(' and ')
+        conditionals = "true" if conditions.length == 0
+        
+        body << "while cursor:next_session() do"
+        body << "  while cursor:next() do"
+        body << "    if #{conditionals} then"
+        body << "      select(cursor, data)"
+        body << "    end"
+        body << "  end"
+        body << "end"
+
+        # Indent body and return.
+        body.map! {|line| "  " + line}
+        return conditional_functions + "\n" + header + body.join("\n") + "\n" + footer
+      end
+
+      # Generates Lua code for the conditional functions.
+      def codegen_conditional_functions
+        code = []
+        
+        # Generate condition functions.
+        conditions.each_with_index do |condition, index|
+          condition.function_name ||= "__condition#{query.nextseq}"
+          code << condition.codegen
+        end
+
+        return code.join("\n")
+      end
+
+
       # Generates Lua code for the merge function.
       def codegen_merge
         header, body, footer = "function merge(results, data)\n", [], "end\n"
@@ -261,6 +336,24 @@ class SkyDB
         # Indent body and return.
         body.map! {|line| "  " + line}
         return header + body.join("\n") + "\n" + footer
+      end
+
+
+      ####################################
+      # Identifier Management
+      ####################################
+
+      # Retrieves a list of all action objects.
+      def get_identifiers
+        actions = []
+        
+        conditions.each do |condition|
+          if condition.action.is_a?(SkyDB::Action) && condition.action.id.to_i == 0
+            actions << condition.action
+          end
+        end
+        
+        return actions
       end
     end
   end

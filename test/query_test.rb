@@ -64,12 +64,12 @@ class TestQuery < MiniTest::Unit::TestCase
   def test_after
     @query.select('count()').after('foo')
     assert_equal :count, @query.selection.fields[0].aggregation_type
-    assert_equal 'foo', @query.conditions[0].action.name
+    assert_equal 'foo', @query.selection.conditions[0].action.name
   end
 
   def test_after_with_hash
     @query.select('count()').after(:action => 'foo')
-    assert_equal 'foo', @query.conditions[0].action.name
+    assert_equal 'foo', @query.selection.conditions[0].action.name
   end
 
 
@@ -106,7 +106,7 @@ class TestQuery < MiniTest::Unit::TestCase
           return false
         end
         
-        function aggregate(cursor, data)
+        function selectAll(cursor, data)
           while cursor:next_session() do
             while cursor:next() do
               if __condition1(cursor, data) and __condition2(cursor, data) then
@@ -121,12 +121,16 @@ class TestQuery < MiniTest::Unit::TestCase
           b = data
           a.count = (a.count or 0) + (b.count or 0)
         end
+
+        function aggregate(cursor, data)
+          select_all(cursor, data)
+        end
       BLOCK
     assert_equal expected.chomp, @query.codegen().chomp
   end
 
   def test_codegen_with_session
-    @query.select('count()').session(7200)
+    @query.session(7200).select('count()')
     expected =
       <<-BLOCK.unindent
         function select(cursor, data)
@@ -134,8 +138,8 @@ class TestQuery < MiniTest::Unit::TestCase
           target.count = (target.count or 0) + 1
         end
         
-        function aggregate(cursor, data)
-          cursor:set_session_idle(7200)
+
+        function selectAll(cursor, data)
           while cursor:next_session() do
             while cursor:next() do
               if true then
@@ -149,6 +153,11 @@ class TestQuery < MiniTest::Unit::TestCase
           a = results
           b = data
           a.count = (a.count or 0) + (b.count or 0)
+        end
+
+        function aggregate(cursor, data)
+          cursor:set_session_idle(7200)
+          select_all(cursor, data)
         end
       BLOCK
     assert_equal expected.chomp, @query.codegen().chomp

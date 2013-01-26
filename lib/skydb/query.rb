@@ -19,8 +19,7 @@ class SkyDB
 
     def initialize(options={})
       self.client = options[:client]
-      self.selection = options[:selection] || SkyDB::Query::Selection.new()
-      self.conditions = options[:conditions] || []
+      self.selection = options[:selection]
     end
     
 
@@ -34,10 +33,13 @@ class SkyDB
     attr_accessor :client
 
     # The properties that should be selected from the database.
-    attr_accessor :selection
-
-    # A list of conditions that must be fulfilled before selection can occur.
-    attr_accessor :conditions
+    attr_reader :selection
+    
+    def selection=(value)
+      @selection = value
+      value.query = self unless value.nil?
+      return value
+    end
 
     # The number of idle seconds that separates sessions. 
     attr_accessor :session_idle_time
@@ -53,44 +55,15 @@ class SkyDB
     # Helpers
     ####################################
 
-    # Adds a list of fields to the selection.
+    # Creates and appends a new selection to the query.
     #
     # @param [String] fields  A list of fields to add to the selection.
     #
-    # @return [Query]  The query object is returned.
+    # @return [Selection]  The newly created selection object is returned.
     def select(*fields)
+      self.selection = SkyDB::Query::Selection.new()
       selection.select(*fields)
-      return self
-    end
-
-    # Adds one or more grouping fields to the selection of the query.
-    #
-    # @param [String] groups  A list of groups to add to the selection.
-    #
-    # @return [Query]  The query object is returned.
-    def group_by(*groups)
-      selection.group_by(*groups)
-      return self
-    end
-
-    # Adds an 'after' condition to the query.
-    #
-    # @param [Hash] options  The options to pass to the 'after' condition.
-    #
-    # @return [Query]  The query object is returned.
-    def after(options={})
-      conditions << SkyDB::Query::AfterCondition.new(options)
-      return self
-    end
-
-    # Adds an 'on' condition to the query.
-    #
-    # @param [Hash] options  The options to pass to the 'on' condition.
-    #
-    # @return [Query]  The query object is returned.
-    def on(options={})
-      conditions << SkyDB::Query::OnCondition.new(options)
-      return self
+      return selection
     end
 
     # Sets the session idle seconds and returns the query object.
@@ -145,33 +118,14 @@ class SkyDB
 
       # Generate selection.
       code = []
-      code << selection.codegen_select()
-      
-      # Generate condition functions.
-      conditions.each_with_index do |condition, index|
-        condition.function_name ||= "__condition#{nextseq}"
-        code << condition.codegen
-      end
-
-      # Generate the invocation of the conditions.
-      conditionals = conditions.map {|condition| "#{condition.function_name}(cursor, data)"}.join(' and ')
-      conditionals = "true" if conditions.length == 0
+      code << selection.codegen()
       
       # Generate aggregate() function.
       code << "function aggregate(cursor, data)"
       code << "  cursor:set_session_idle(#{session_idle_time.to_i})" if session_idle_time.to_i > 0
-      code << "  while cursor:next_session() do"
-      code << "    while cursor:next() do"
-      code << "      if #{conditionals} then"
-      code << "        select(cursor, data)"
-      code << "      end"
-      code << "    end"
-      code << "  end"
+      code << "  select_all(cursor, data)"
       code << "end"
       code << ""
-
-      # Generate merge function.
-      code << selection.codegen_merge()
       
       return code.join("\n")
     end
@@ -181,8 +135,6 @@ class SkyDB
     # Utility
     ####################################
     
-    private
-    
     # Generates a sequence number used for uniquely naming objects and
     # functions in the query.
     def nextseq
@@ -191,13 +143,9 @@ class SkyDB
 
     # Looks up all actions and properties that are missing an identifier.
     def lookup_identifiers
-      # Find all the actions on conditions that are missing an id.
+      # Find all the actions on the selection that are missing an id.
       actions = []
-      conditions.each do |condition|
-        if condition.action.is_a?(SkyDB::Action) && condition.action.id.to_i == 0
-          actions << condition.action
-        end
-      end
+      actions.concat(selection.get_identifiers())
 
       # Lookup all the actions.
       if actions.length > 0
