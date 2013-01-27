@@ -73,20 +73,22 @@ class SkyDB
       # Imports records from a list of files.
       #
       # @param [Array]  a list of files to import.
-      def import(files)
-        files = [files] unless files.is_a?(Array)
+      def import(files, options={})
+        options[:progress_bar] = true unless options.has_key?(:progress_bar)
+        progress_bar = nil
         
         # Set the table to import into.
         SkyDB.table_name = table_name
         
         # Loop over each of the files.
+        files = [files] unless files.is_a?(Array)
         files.each do |file|
           # Initialize progress bar.
           count = %x{wc -l #{file}}.split.first.to_i
           progress_bar = ::ProgressBar.create(
             :total => count,
             :format => ('%-40s' % file) + ' |%B| %P%%'
-          )
+          ) if options[:progress_bar]
 
           SkyDB.multi(:max_count => 1000) do
             each_record(file) do |input|
@@ -97,11 +99,11 @@ class SkyDB
               # p output
 
               if !(output[:object_id] > 0)
-                progress_bar.clear()
-                $stderr.puts "[ERROR] Invalid object id on line #{$.}: '#{output[:object_id]}'"
+                progress_bar.clear() unless progress_bar.nil?
+                $stderr.puts "[ERROR] Invalid object id on line #{$.}"
               elsif output[:timestamp].nil?
-                progress_bar.clear()
-                $stderr.puts "[ERROR] Invalid timestamp on line #{$.}: '#{output[:timestamp]}'"
+                progress_bar.clear() unless progress_bar.nil?
+                $stderr.puts "[ERROR] Invalid timestamp on line #{$.}"
               else
                 # Convert hash to an event and send to Sky.
                 event = SkyDB::Event.new(output)
@@ -109,12 +111,12 @@ class SkyDB
               end
             
               # Update progress bar.
-              progress_bar.increment()
+              progress_bar.increment() unless progress_bar.nil?
             end
           end
 
           # Finish progress bar.
-          progress_bar.finish() unless progress_bar.finished?
+          progress_bar.finish() unless progress_bar.nil? || progress_bar.finished?
         end
         
         return nil
@@ -137,7 +139,7 @@ class SkyDB
           when '.tsv' then :tsv
           when '.txt' then :tsv
           when '.json' then :json
-          else :csv
+          when '.csv' then :csv
           end
         
         # Process the record by file type.
@@ -145,7 +147,7 @@ class SkyDB
         when :csv then each_text_record(file, ",", &Proc.new)
         when :tsv then each_text_record(file, "\t", &Proc.new)
         when :json then each_json_record(file, &Proc.new)
-        else raise UnsupportedFileType.new("File type not supported by importer: #{file_type || File.extname(file)}")
+        else raise SkyDB::Import::Importer::UnsupportedFileType.new("File type not supported by importer: #{file_type || File.extname(file)}")
         end
         
         return nil
@@ -169,6 +171,7 @@ class SkyDB
           # If headers were specified then manually convert the row
           # using the headers provided.
           else
+            record = {}
             headers.each_with_index do |header, index|
               record[header] = row[index]
             end

@@ -7,7 +7,7 @@ translate: |
     _input.each_pair do |k, v|
       if v.is_a?(Hash)
         _output[k] = {}
-        process(v, _output)
+        process(v, _output[k])
       else
         m, prefix, field, data_type  = *k.match(/^(?:(action|data)\.)?(\w+)(?:\:(\w+))?$/)
         next unless ["object_id", "timestamp"].index(field).nil?
