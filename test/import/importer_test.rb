@@ -57,7 +57,7 @@ class TestImporter < MiniTest::Unit::TestCase
       SkyDB.expects(:add_event).with(events[2])
       SkyDB.expects(:add_event).with(events[3])
       @importer.load_transform_file('sky')
-      @importer.import(['fixtures/importer/1.csv'], :progress_bar => false)
+      @importer.import(['fixtures/importer/simple.csv'], :progress_bar => false)
     end
     assert_equal '', out
     assert_equal '', err
@@ -75,7 +75,7 @@ class TestImporter < MiniTest::Unit::TestCase
       SkyDB.expects(:add_event).with(events[2])
       SkyDB.expects(:add_event).with(events[3])
       @importer.load_transform_file('sky')
-      @importer.import(['fixtures/importer/1.tsv'], :progress_bar => false)
+      @importer.import(['fixtures/importer/simple.tsv'], :progress_bar => false)
     end
     assert_equal '', out
     assert_equal '', err
@@ -93,7 +93,7 @@ class TestImporter < MiniTest::Unit::TestCase
       SkyDB.expects(:add_event).with(events[2])
       SkyDB.expects(:add_event).with(events[3])
       @importer.load_transform_file('sky')
-      @importer.import(['fixtures/importer/1.json'], :progress_bar => false)
+      @importer.import(['fixtures/importer/simple.json'], :progress_bar => false)
     end
     assert_equal '', out
     assert_equal '', err
