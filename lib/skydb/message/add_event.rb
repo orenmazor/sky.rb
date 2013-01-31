@@ -47,7 +47,7 @@ class SkyDB
       def validate!
         super
         
-        if !(event.object_id > 0)
+        if event.object_id.nil?
           raise SkyDB::ObjectIdRequiredError.new('Object ID required')
         end
         

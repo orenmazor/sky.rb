@@ -1,5 +1,5 @@
 fields:
-  object_id: object_id:int
+  object_id: object_id
   timestamp: timestamp:date
 
 translate: |

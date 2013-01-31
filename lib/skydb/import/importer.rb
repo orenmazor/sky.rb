@@ -98,9 +98,9 @@ class SkyDB
               
               # p output
 
-              if !(output[:object_id] > 0)
+              if output[:object_id].nil?
                 progress_bar.clear() unless progress_bar.nil?
-                $stderr.puts "[ERROR] Invalid object id on line #{$.}"
+                $stderr.puts "[ERROR] Object id required on line #{$.}"
               elsif output[:timestamp].nil?
                 progress_bar.clear() unless progress_bar.nil?
                 $stderr.puts "[ERROR] Invalid timestamp on line #{$.}"

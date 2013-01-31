@@ -15,11 +15,6 @@ class TestEvent < MiniTest::Unit::TestCase
     assert_equal 12, @event.object_id
   end
   
-  def test_invalid_object_id
-    @event.object_id = "foo"
-    assert_equal 0, @event.object_id
-  end
-  
 
   ######################################
   # Timestamp

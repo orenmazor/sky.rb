@@ -25,12 +25,8 @@ class SkyDB
     # Object ID
     ##################################
 
-    # The numeric identifier of the object that the event is attached to.
-    attr_reader :object_id
-    
-    def object_id=(value)
-      @object_id = value.to_i
-    end
+    # The object identifier.
+    attr_accessor :object_id
 
     ##################################
     # Timestamp
@@ -103,7 +99,7 @@ class SkyDB
     # Encodes the event into MsgPack format.
     def to_msgpack
       obj = {
-        :objectId => object_id,
+        :objectId => object_id.to_msgpack,
         :timestamp => SkyDB::Timestamp.to_timestamp(timestamp)
       }
       obj[:action] = action unless action.nil? || action.empty?

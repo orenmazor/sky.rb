@@ -1,4 +1,4 @@
 translate: |
-  output[:object_id] = input[:ip_address].to_s.split(".").map{|s|s.to_i}.pack("C*").unpack("N").first
+  output[:object_id] = input[:ip_address]
   output[:timestamp] = input[:timestamp]
   output[:action][:name] = input[:url]
