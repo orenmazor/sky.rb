@@ -76,23 +76,21 @@ class SkyDB
       #
       # @param [Array]  a list of files to import.
       def import(files, options={})
+        files = [files] unless files.is_a?(Array)
         options[:progress_bar] = true unless options.has_key?(:progress_bar)
         progress_bar = nil
         
         # Set the table to import into.
         SkyDB.table_name = table_name
-        
-        # Loop over each of the files.
-        files = [files] unless files.is_a?(Array)
-        files.each do |file|
-          # Initialize progress bar.
-          count = %x{wc -l #{file}}.split.first.to_i
-          progress_bar = ::ProgressBar.create(
-            :total => count,
-            :format => ('%-40s' % file) + ' |%B| %P%%'
-          ) if options[:progress_bar]
 
-          SkyDB.multi(:max_count => 1000) do
+        # Initialize progress bar.
+        count = files.inject(0) {|cnt,file| cnt + %x{wc -l #{file}|tail -1}.split.first.to_i}
+        progress_bar = ::ProgressBar.create(:total => count, :format => '|%B| %P%%') if options[:progress_bar]
+
+        # Loop over each of the files.
+        files_expanded = files.inject([]) {|fs,fg| fs.concat(Dir[File.expand_path(fg)].delete_if{|f| File.directory?(f)}); fs}
+        SkyDB.multi(:max_count => 1000) do
+          files_expanded.each do |file|
             each_record(file, options) do |input|
               # Convert input line to a symbolized hash.
               output = translate(input)
@@ -116,10 +114,10 @@ class SkyDB
               progress_bar.increment() unless progress_bar.nil?
             end
           end
-
-          # Finish progress bar.
-          progress_bar.finish() unless progress_bar.nil? || progress_bar.finished?
         end
+
+        # Finish progress bar.
+        progress_bar.finish() unless progress_bar.nil? || progress_bar.finished?
         
         return nil
       end
