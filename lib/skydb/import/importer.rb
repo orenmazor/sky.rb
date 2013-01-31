@@ -3,6 +3,8 @@ require 'csv'
 require 'yajl'
 require 'open-uri'
 require 'ruby-progressbar'
+require 'apachelogregex'
+require 'useragent'
 
 class SkyDB
   class Import
@@ -91,7 +93,7 @@ class SkyDB
           ) if options[:progress_bar]
 
           SkyDB.multi(:max_count => 1000) do
-            each_record(file) do |input|
+            each_record(file, options) do |input|
               # Convert input line to a symbolized hash.
               output = translate(input)
               output._symbolize_keys!
@@ -131,22 +133,23 @@ class SkyDB
       # by the file's type (:csv, :tsv, :json).
       #
       # @param [String] file  the path to the file to iterate over.
-      # @param [String] file_type  the type of file to process.
-      def each_record(file, file_type=nil)
+      def each_record(file, options)
         # Determine file type automatically if not passed in.
-        file_type ||= 
+        file_type = 
           case File.extname(file)
           when '.tsv' then :tsv
           when '.txt' then :tsv
           when '.json' then :json
           when '.csv' then :csv
+          when '.log' then :apache_log
           end
         
         # Process the record by file type.
         case file_type
-        when :csv then each_text_record(file, ",", &Proc.new)
-        when :tsv then each_text_record(file, "\t", &Proc.new)
-        when :json then each_json_record(file, &Proc.new)
+        when :csv then each_text_record(file, ",", options, &Proc.new)
+        when :tsv then each_text_record(file, "\t", options, &Proc.new)
+        when :json then each_json_record(file, options, &Proc.new)
+        when :apache_log then each_apache_log_record(file, options, &Proc.new)
         else raise SkyDB::Import::Importer::UnsupportedFileType.new("File type not supported by importer: #{file_type || File.extname(file)}")
         end
         
@@ -158,7 +161,7 @@ class SkyDB
       #
       # @param [String] file  the path to the file to iterate over.
       # @param [String] col_sep  the column separator.
-      def each_text_record(file, col_sep)
+      def each_text_record(file, col_sep, options)
         # Process each line of the CSV file.
         CSV.foreach(file, :headers => headers.nil?, :col_sep => col_sep) do |row|
           record = nil
@@ -184,12 +187,77 @@ class SkyDB
       # Executes a block for each line of a JSON file.
       #
       # @param [String] file  the path to the file to iterate over.
-      def each_json_record(file)
+      def each_json_record(file, options)
         io = open(file)
 
         # Process each line of the JSON file.
         Yajl::Parser.parse(io) do |record|
           yield(record)
+        end
+      end
+
+      # Executes a block for each line of a standard Apache log file.
+      #
+      # @param [String] file  the path to the file to iterate over.
+      def each_apache_log_record(file, options)
+        format = options[:format] || '%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"'
+        parser = ApacheLogRegex.new(format)
+
+        File.foreach(file) do |line|
+          begin
+            hash = parser.parse!(line)
+            m, method, url = *hash['%r'].to_s.match(/^(\w+) ([^ ]+)/)
+            uri = URI.parse("http://localhost#{path}") rescue nil
+            record = {
+              :ip_address => hash['%h'],
+              :timestamp => DateTime.strptime(hash['%t'].gsub(/\[|\]/, ''), "%d/%b/%Y:%H:%M:%S %z"),
+              :method => method,
+              :url => url,
+              :status_code => hash['%s'],
+              :size => hash['%b'],
+            }
+            record[:user_identifier] = hash['%l'] unless hash['%l'] == '-'
+            record[:user_id] = hash['%u'] unless hash['%u'] == '-'
+
+            # Extract the parts of the URI.
+            if !uri.nil?
+              record[:path] = uri.path
+              record[:query_string] = uri.query
+              record[:query] = CGI::parse(uri.query) rescue {}
+              record[:fragment] = uri.fragment
+            end
+
+            # Extract the referrer if there is one.
+            if !hash['%{Referer}i'].nil? && hash['%{Referer}i'] != '-'
+              record[:referer] = hash['%{Referer}i']
+              referer_uri = URI.parse(record[:referer]) rescue nil
+              if !referer_uri.nil?
+                record[:referer_host] = referer_uri.host
+                record[:referer_path] = referer_uri.path
+                record[:referer_query_string] = referer_uri.query
+                record[:referer_query] = CGI::parse(referer_uri.query) rescue {}
+              end
+            end
+            
+            # Extract specific user agent information.
+            if !hash['%{User-Agent}i'].nil?
+              user_agent = UserAgent.parse(hash['%{User-Agent}i'])
+              record[:user_agent] = hash['%{User-Agent}i']
+              record[:ua_name] = user_agent.browser.to_s unless user_agent.browser.nil?
+              record[:ua_version] = user_agent.version.to_s unless user_agent.version.nil?
+              record[:ua_platform] = user_agent.platform.to_s unless user_agent.platform.nil?
+              record[:ua_os] = user_agent.os.to_s unless user_agent.os.nil?
+              record[:ua_mobile] = user_agent.mobile?
+            end
+
+            # Skip junk log entries.
+            next if method == "HEAD" || method == "OPTIONS"
+
+            yield(record)
+
+          rescue ApacheLogRegex::ParseError => e
+            $stderr.puts "[ERROR] Unable to parse line #{$.} in #{file} (#{e.message})"
+          end
         end
       end
 
@@ -204,12 +272,14 @@ class SkyDB
       #
       # @return [Hash]  the output hash.
       def translate(input)
-        output = {}
+        output = {:action => {}, :data => {}}
 
         translators.each do |translator|
           translator.translate(input, output)
         end
 
+        output.delete(:action) if output[:action].keys.length == 0
+        output.delete(:data) if output[:data].keys.length == 0
         return output
       end
       

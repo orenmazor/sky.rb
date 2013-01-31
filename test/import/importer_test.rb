@@ -99,6 +99,26 @@ class TestImporter < MiniTest::Unit::TestCase
     assert_equal '', err
   end
 
+  def test_import_apache_log
+    out, err = capture_io do
+      events = [mock(), mock(), mock(), mock(), mock()]
+      SkyDB::Event.expects(:new).with(:object_id => 1109244688, :timestamp => DateTime.parse("2013-01-13T04:05:07+00:00"), :action => {:name => "/users/1"}).returns(events[0])
+      SkyDB::Event.expects(:new).with(:object_id => 1187056644, :timestamp => DateTime.parse("2013-01-13T04:05:09+00:00"), :action => {:name => "/tweets/new"}).returns(events[1])
+      SkyDB::Event.expects(:new).with(:object_id => 1139023882, :timestamp => DateTime.parse("2013-01-13T04:05:07+00:00"), :action => {:name => "/tweets"}).returns(events[2])
+      SkyDB::Event.expects(:new).with(:object_id => 2637636437, :timestamp => DateTime.parse("2013-01-13T04:05:07+00:00"), :action => {:name => "/index.html"}).returns(events[3])
+      SkyDB::Event.expects(:new).with(:object_id => 1109244688, :timestamp => DateTime.parse("2013-01-13T04:05:07+00:00"), :action => {:name => "/messages/1840832/open"}).returns(events[4])
+      SkyDB.expects(:add_event).with(events[0])
+      SkyDB.expects(:add_event).with(events[1])
+      SkyDB.expects(:add_event).with(events[2])
+      SkyDB.expects(:add_event).with(events[3])
+      SkyDB.expects(:add_event).with(events[4])
+      @importer.load_transform_file('apache')
+      @importer.import(['fixtures/importer/simple.log'], :progress_bar => false)
+    end
+    assert_equal '', out
+    assert_equal '', err
+  end
+
   def test_import_csv_no_headers
     out, err = capture_io do
       events = [mock(), mock(), mock(), mock()]
