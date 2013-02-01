@@ -52,6 +52,20 @@ class SkyDB
           raise SkyDB::Query::ValidationError.new("Invalid expression for selection group: '#{expression.to_s}'")
         end
       end
+
+      ####################################
+      # Serialization
+      ####################################
+    
+      # Serializes the selection group into a JSON string.
+      def to_json(*a); as_json.to_json(*a); end
+
+      # Serializes the selection group into a hash.
+      def as_json(*a)
+        {
+          'expression' => expression.to_s
+        }.delete_if {|k,v| v == ''}
+      end
     end
   end
 end

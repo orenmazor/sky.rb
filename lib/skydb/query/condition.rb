@@ -78,6 +78,26 @@ class SkyDB
       def codegen(options={})
         return "function #{function_name.to_s}(cursor, data) return false end\n"
       end
+
+
+      ####################################
+      # Serialization
+      ####################################
+    
+      # Serializes the condition into a JSON string.
+      def to_json(*a); as_json.to_json(*a); end
+
+      # Serializes the condition into a hash.
+      def as_json(*a)
+        json = {}
+        json['type'] = self.class.to_s.split("::").last.gsub('Condition', '').downcase
+        if action.is_a?(SkyDB::Action)
+          json['action'] = action.as_json(*a)
+        elsif action.is_a?(Symbol)
+          json['action'] = action
+        end
+        json
+      end
     end
   end
 end

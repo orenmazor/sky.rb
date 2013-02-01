@@ -162,4 +162,14 @@ class TestQuery < MiniTest::Unit::TestCase
       BLOCK
     assert_equal expected.chomp, @query.codegen().chomp
   end
+
+
+  ######################################
+  # Serialization
+  ######################################
+
+  def test_to_json
+    @query.select('count()').group_by("action_id").on(:enter).after(10).after(20)
+    assert_equal IO.read("fixtures/query/query.json"), JSON.pretty_generate(@query.as_json)
+  end
 end

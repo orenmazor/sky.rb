@@ -69,6 +69,22 @@ class SkyDB
           raise SkyDB::Query::ValidationError.new("Invalid expression for selection field: '#{expression.to_s}'")
         end
       end
+
+      ####################################
+      # Serialization
+      ####################################
+    
+      # Serializes the selection field object into a JSON string.
+      def to_json(*a); as_json.to_json(*a); end
+
+      # Serializes the selection field object into a hash.
+      def as_json(*a)
+        {
+          'expression' => expression.to_s,
+          'aliasName' => alias_name.to_s,
+          'aggregationType' => aggregation_type.to_s
+        }.delete_if {|k,v| v == ''}
+      end
     end
   end
 end

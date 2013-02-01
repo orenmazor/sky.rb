@@ -132,6 +132,21 @@ class SkyDB
 
 
     ####################################
+    # Serialization
+    ####################################
+    
+    # Serializes the query object into a JSON string.
+    def to_json(*a); as_json.to_json(*a); end
+
+    # Serializes the query object into a hash.
+    def as_json(*a)
+      json = {}
+      json['selections'] = [selection.as_json(*a)] unless selection.nil?
+      json
+    end
+    
+
+    ####################################
     # Utility
     ####################################
     

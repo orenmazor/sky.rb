@@ -1,0 +1,34 @@
+{
+  "selections": [
+    {
+      "fields": [
+        {
+          "aggregationType": "count"
+        }
+      ],
+      "groups": [
+        {
+          "expression": "action_id"
+        }
+      ],
+      "conditions": [
+        {
+          "type": "on",
+          "action": "enter"
+        },
+        {
+          "type": "after",
+          "action": {
+            "id": 10
+          }
+        },
+        {
+          "type": "after",
+          "action": {
+            "id": 20
+          }
+        }
+      ]
+    }
+  ]
+}

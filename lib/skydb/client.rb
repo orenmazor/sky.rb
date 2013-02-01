@@ -195,10 +195,15 @@ class SkyDB
     ####################################
 
     # Starts a query against the database.
+    def query()
+      return SkyDB::Query.new(:client => self)
+    end
+
+    # Starts a query with a single selection against the database.
     #
-    # @param [String] selection  a list of properties to select from the database.
+    # @param [String] fields  a list of properties to select from the database.
     def select(fields)
-      return SkyDB::Query.new(:client => self).select(fields)
+      return query.select(fields)
     end
 
 

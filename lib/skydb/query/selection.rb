@@ -340,6 +340,23 @@ class SkyDB
 
 
       ####################################
+      # Serialization
+      ####################################
+    
+      # Serializes the selection object into a JSON string.
+      def to_json(*a); as_json.to_json(*a); end
+
+      # Serializes the selection object into a hash.
+      def as_json(*a)
+        {
+          'fields' => fields.to_a.map {|f| f.as_json},
+          'groups' => groups.to_a.map {|g| g.as_json},
+          'conditions' => conditions.to_a.map {|c| c.as_json}
+        }
+      end
+    
+    
+      ####################################
       # Identifier Management
       ####################################
 

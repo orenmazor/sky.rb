@@ -54,12 +54,15 @@ class SkyDB
       return {id:id, name:name}.to_msgpack
     end
 
+    # Serializes the query object into a JSON string.
+    def to_json(*a); as_json.to_json(*a); end
+
     # Encodes the action into JSON format.
-    def to_json(*a)
+    def as_json(*a)
       {
         'id' => id,
         'name' => name
-      }.to_json(*a)
+      }.delete_if {|k,v| v == '' || v == 0}
     end
   end
 end
