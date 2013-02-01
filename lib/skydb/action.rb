@@ -55,14 +55,22 @@ class SkyDB
     end
 
     # Serializes the query object into a JSON string.
-    def to_json(*a); as_json.to_json(*a); end
+    def to_json(*a); to_hash.to_json(*a); end
 
     # Encodes the action into JSON format.
-    def as_json(*a)
+    def to_hash(*a)
       {
         'id' => id,
         'name' => name
       }.delete_if {|k,v| v == '' || v == 0}
+    end
+
+    # Deserializes the selection field object from a hash.
+    def from_hash(hash, *a)
+      return nil if hash.nil?
+      self.id = hash['id'].to_i
+      self.name = hash['name']
+      return self
     end
   end
 end

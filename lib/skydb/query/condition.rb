@@ -29,13 +29,11 @@ class SkyDB
       attr_reader :action
       
       def action=(value)
-        if value.is_a?(Symbol)
-          @action = :enter
-        elsif value.is_a?(String)
+        if value.is_a?(String)
           @action = SkyDB::Action.new(:name => value)
         elsif value.is_a?(Fixnum)
           @action = SkyDB::Action.new(:id => value)
-        elsif value.is_a?(SkyDB::Action)
+        elsif value.is_a?(SkyDB::Action) || value == :enter
           @action = value
         else
           @action = nil
@@ -85,18 +83,29 @@ class SkyDB
       ####################################
     
       # Serializes the condition into a JSON string.
-      def to_json(*a); as_json.to_json(*a); end
+      def to_json(*a); to_hash.to_json(*a); end
 
       # Serializes the condition into a hash.
-      def as_json(*a)
+      def to_hash(*a)
         json = {}
         json['type'] = self.class.to_s.split("::").last.gsub('Condition', '').downcase
         if action.is_a?(SkyDB::Action)
-          json['action'] = action.as_json(*a)
+          json['action'] = action.to_hash(*a)
         elsif action.is_a?(Symbol)
           json['action'] = action
         end
         json
+      end
+
+      # Deserializes the condition from a hash.
+      def from_hash(hash, *a)
+        return nil if hash.nil?
+        if hash['action'] == "enter"
+          self.action = hash['action'].to_sym
+        else
+          self.action = SkyDB::Action.new.from_hash(hash['action'], *a)
+        end
+        return self
       end
     end
   end

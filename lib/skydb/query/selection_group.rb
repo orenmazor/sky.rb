@@ -58,13 +58,20 @@ class SkyDB
       ####################################
     
       # Serializes the selection group into a JSON string.
-      def to_json(*a); as_json.to_json(*a); end
+      def to_json(*a); to_hash.to_json(*a); end
 
       # Serializes the selection group into a hash.
-      def as_json(*a)
+      def to_hash(*a)
         {
           'expression' => expression.to_s
         }.delete_if {|k,v| v == ''}
+      end
+
+      # Deserializes the selection field object from a hash.
+      def from_hash(hash, *a)
+        return nil if hash.nil?
+        self.expression = hash['expression']
+        return self
       end
     end
   end

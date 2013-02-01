@@ -136,13 +136,21 @@ class SkyDB
     ####################################
     
     # Serializes the query object into a JSON string.
-    def to_json(*a); as_json.to_json(*a); end
+    def to_json(*a); to_hash.to_json(*a); end
 
     # Serializes the query object into a hash.
-    def as_json(*a)
-      json = {}
-      json['selections'] = [selection.as_json(*a)] unless selection.nil?
-      json
+    def to_hash(*a)
+      hash = {}
+      hash['selections'] = [selection.to_hash(*a)] unless selection.nil?
+      hash
+    end
+
+    # Deserializes the query object into a hash.
+    def from_hash(hash, *a)
+      return if hash.nil?
+      selection_hash, x = *hash['selections']
+      self.selection = SkyDB::Query::Selection.new.from_hash(selection_hash)
+      return self
     end
     
 

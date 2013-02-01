@@ -168,8 +168,13 @@ class TestQuery < MiniTest::Unit::TestCase
   # Serialization
   ######################################
 
-  def test_to_json
+  def test_to_hash
     @query.select('count()').group_by("action_id").on(:enter).after(10).after(20)
-    assert_equal IO.read("fixtures/query/query.json"), JSON.pretty_generate(@query.as_json)
+    assert_equal IO.read("fixtures/query/query.json"), JSON.pretty_generate(@query.to_hash)
+  end
+
+  def test_from_json
+    @query.from_hash(JSON.parse(IO.read("fixtures/query/query.json")))
+    assert_equal IO.read("fixtures/query/query.json"), JSON.pretty_generate(@query.to_hash)
   end
 end
