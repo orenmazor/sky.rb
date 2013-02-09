@@ -254,7 +254,7 @@ class SkyDB
 
       # Generates Lua code for the aggregation based on the selection.
       def codegen_select_all
-        header, body, footer = "function selectAll(cursor, data)\n", [], "end\n"
+        header, body, footer = "function select_all(cursor, data)\n", [], "end\n"
       
         # Generate the invocation of the conditions.
         conditional_functions = codegen_conditional_functions()

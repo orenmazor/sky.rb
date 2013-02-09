@@ -53,6 +53,10 @@ class SkyDB
             :source => source
           }.to_msgpack
         end
+
+        def process_response(response)
+          return response['data']
+        end
       end
     end
   end

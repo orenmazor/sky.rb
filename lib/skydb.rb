@@ -46,7 +46,7 @@ class SkyDB
     :add_property, :get_property, :get_properties,
     :next_actions,
     :aggregate,
-    :select
+    :query, :select
   ]
   
   

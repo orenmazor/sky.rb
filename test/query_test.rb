@@ -106,7 +106,7 @@ class TestQuery < MiniTest::Unit::TestCase
           return false
         end
         
-        function selectAll(cursor, data)
+        function select_all(cursor, data)
           while cursor:next_session() do
             while cursor:next() do
               if __condition1(cursor, data) and __condition2(cursor, data) then
@@ -139,7 +139,7 @@ class TestQuery < MiniTest::Unit::TestCase
         end
         
 
-        function selectAll(cursor, data)
+        function select_all(cursor, data)
           while cursor:next_session() do
             while cursor:next() do
               if true then

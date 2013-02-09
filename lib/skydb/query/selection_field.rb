@@ -91,7 +91,7 @@ class SkyDB
         return nil if hash.nil?
         self.expression = hash['expression']
         self.alias_name = hash['aliasName']
-        self.aggregation_type = hash['aggregationType']
+        self.aggregation_type = hash['aggregationType'].to_s != '' ? hash['aggregationType'].to_s.to_sym : nil
         return self
       end
     end
