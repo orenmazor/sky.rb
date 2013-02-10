@@ -64,4 +64,24 @@ class TestQueryAfterCondition < MiniTest::Unit::TestCase
       BLOCK
     assert_equal expected, @after.codegen()
   end
+
+  def test_codegen_within_1_step
+    @after = SkyDB::Query::AfterCondition.new(:action => 10, :within => {:quantity => 1, :unit => 'step'}, :function_name => "foo")
+    expected =
+      <<-BLOCK.unindent
+        function foo(cursor, data)
+          remaining = 1
+          repeat
+            if cursor.event.action_id == 10 then
+              cursor:next()
+              return true
+            end
+            remaining = remaining - 1
+            if remaining <= 0 then return false end
+          until not cursor:next()
+          return false
+        end
+      BLOCK
+    assert_equal expected, @after.codegen()
+  end
 end

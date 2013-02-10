@@ -169,7 +169,7 @@ class TestQuery < MiniTest::Unit::TestCase
   ######################################
 
   def test_to_hash
-    @query.select('count()').group_by("action_id").on(:enter).after(10).after(20)
+    @query.select('count()').group_by("action_id").on(:enter).after(:action => 10, :within => {:quantity => 1, :unit => 'step'}).after(20)
     assert_equal IO.read("fixtures/query/query.json"), JSON.pretty_generate(@query.to_hash)
   end
 
