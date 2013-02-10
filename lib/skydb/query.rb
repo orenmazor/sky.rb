@@ -142,7 +142,7 @@ class SkyDB
     def to_hash(*a)
       hash = {}
       hash['selections'] = [selection.to_hash(*a)] unless selection.nil?
-      hash['sessionIdleTime'] = session_idle_time
+      hash['sessionIdleTime'] = session_idle_time.to_i
       hash
     end
 

@@ -29,6 +29,10 @@ class SkyDB
       def encode_body(buffer)
         # Do nothing.
       end
+
+      def process_response(response)
+        return response['actions']
+      end
     end
   end
 end

@@ -215,7 +215,7 @@ class SkyDB
         # Initialize groups.
         groups.each do |group|
           body << "group_value = #{group.accessor}"
-          body << "if cursor:eos() or cursor:eof() then group_value = -1 end" if group.expression == 'action_id'
+          body << "if cursor:eos() or cursor:eof() then group_value = 'exit' end" if group.expression == 'action_id'
           body << "if target[group_value] == nil then"
           body << "  target[group_value] = {}"
           body << "end"
@@ -369,7 +369,8 @@ class SkyDB
         end
         return self
       end
-    
+
+
       ####################################
       # Identifier Management
       ####################################
