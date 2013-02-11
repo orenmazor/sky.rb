@@ -178,6 +178,9 @@ class SkyDB
             end
           end
 
+          # Skip over blank rows.
+          next if record.values.reject{|v| v == '' || v.nil? }.length == 0
+
           yield(record)
         end
       end
