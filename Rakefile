@@ -14,10 +14,27 @@ task :default => :test
 #
 #############################################################################
 
-Rake::TestTask.new do |t|
-  t.options = "-v"
-  t.libs << "test"
-  t.test_files = FileList["test/*_test.rb", "test/**/*_test.rb"]
+namespace :test do
+  # Unit tests
+  Rake::TestTask.new(:unit) do |t|
+    t.options = "-v"
+    t.libs << "test"
+    t.test_files = FileList["test/unit/*_test.rb", "test/unit/**/*_test.rb"]
+  end
+
+  # Integration tests
+  Rake::TestTask.new(:integration) do |t|
+    t.options = "-v"
+    t.libs << "test"
+    t.test_files = FileList["test/integration/*_test.rb", "test/integration/**/*_test.rb"]
+  end
+
+  # All tests
+  Rake::TestTask.new(:all) do |t|
+    t.options = "-v"
+    t.libs << "test"
+    t.test_files = FileList["test/*_test.rb", "test/**/*_test.rb"]
+  end
 end
 
 

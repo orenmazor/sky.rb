@@ -57,7 +57,7 @@ class TestImporter < MiniTest::Unit::TestCase
       SkyDB.expects(:add_event).with(events[2])
       SkyDB.expects(:add_event).with(events[3])
       @importer.load_transform_file('sky')
-      @importer.import(['fixtures/importer/simple.csv'], :progress_bar => false)
+      @importer.import(['fixtures/unit/importer/simple.csv'], :progress_bar => false)
     end
     assert_equal '', out
     assert_equal '', err
@@ -75,7 +75,7 @@ class TestImporter < MiniTest::Unit::TestCase
       SkyDB.expects(:add_event).with(events[2])
       SkyDB.expects(:add_event).with(events[3])
       @importer.load_transform_file('sky')
-      @importer.import(['fixtures/importer/simple.tsv'], :progress_bar => false)
+      @importer.import(['fixtures/unit/importer/simple.tsv'], :progress_bar => false)
     end
     assert_equal '', out
     assert_equal '', err
@@ -93,7 +93,7 @@ class TestImporter < MiniTest::Unit::TestCase
       SkyDB.expects(:add_event).with(events[2])
       SkyDB.expects(:add_event).with(events[3])
       @importer.load_transform_file('sky')
-      @importer.import(['fixtures/importer/simple.json'], :progress_bar => false)
+      @importer.import(['fixtures/unit/importer/simple.json'], :progress_bar => false)
     end
     assert_equal '', out
     assert_equal '', err
@@ -113,7 +113,7 @@ class TestImporter < MiniTest::Unit::TestCase
       SkyDB.expects(:add_event).with(events[3])
       SkyDB.expects(:add_event).with(events[4])
       @importer.load_transform_file('apache')
-      @importer.import(['fixtures/importer/simple.log'], :progress_bar => false)
+      @importer.import(['fixtures/unit/importer/simple.log'], :progress_bar => false)
     end
     assert_equal '', out
     assert_equal '', err
@@ -126,7 +126,7 @@ class TestImporter < MiniTest::Unit::TestCase
       SkyDB.expects(:add_event).with(events[0])
       @importer.headers = ['object_id', 'timestamp', 'action.name']
       @importer.load_transform_file('sky')
-      @importer.import(['fixtures/importer/no_headers.csv'], :progress_bar => false)
+      @importer.import(['fixtures/unit/importer/no_headers.csv'], :progress_bar => false)
     end
     assert_equal '', out
     assert_equal '', err
@@ -138,7 +138,7 @@ class TestImporter < MiniTest::Unit::TestCase
       SkyDB::Event.expects(:new).never
       SkyDB.expects(:add_event).never
       @importer.load_transform_file('sky')
-      @importer.import(['fixtures/importer/bad_timestamp.csv'], :progress_bar => false)
+      @importer.import(['fixtures/unit/importer/bad_timestamp.csv'], :progress_bar => false)
     end
     assert_equal '', out
     assert_equal "[ERROR] Invalid timestamp on line 2", err.chomp
@@ -146,7 +146,7 @@ class TestImporter < MiniTest::Unit::TestCase
   
   def test_import_unsupported_file_type
     e = assert_raises(SkyDB::Import::Importer::UnsupportedFileType) do
-      @importer.import(['fixtures/importer/unsupported.xxx'], :progress_bar => false)
+      @importer.import(['fixtures/unit/importer/unsupported.xxx'], :progress_bar => false)
     end
     assert_equal 'File type not supported by importer: .xxx', e.message
   end

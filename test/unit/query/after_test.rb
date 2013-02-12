@@ -72,12 +72,12 @@ class TestQueryAfterCondition < MiniTest::Unit::TestCase
         function foo(cursor, data)
           remaining = 1
           repeat
+            if remaining <= 0 then return false end
             if cursor.event.action_id == 10 then
               cursor:next()
               return true
             end
             remaining = remaining - 1
-            if remaining <= 0 then return false end
           until not cursor:next()
           return false
         end

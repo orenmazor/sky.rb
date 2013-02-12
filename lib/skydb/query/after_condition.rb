@@ -61,12 +61,12 @@ class SkyDB
         # Find the matching event and then move to the next one for selection.
         body << "remaining = #{within[:quantity].to_i}" if within_unit == 'step'
         body << "repeat"
+        body << "  if remaining <= 0 then return false end" if within_unit == 'step'
         body << "  if cursor.event.action_id == #{action.id.to_i} then"
         body << "    cursor:next()"
         body << "    return true"
         body << "  end"
         body << "  remaining = remaining - 1" if within_unit == 'step'
-        body << "  if remaining <= 0 then return false end" if within_unit == 'step'
         body << "until not cursor:next()"
         body << "return false"
 

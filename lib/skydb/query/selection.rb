@@ -168,6 +168,11 @@ class SkyDB
         return self
       end
 
+      # Executes the parent query.
+      def execute()
+        return query.execute
+      end
+
 
       ####################################
       # Validation
