@@ -59,6 +59,7 @@ class SkyDB
         within_unit = (within.nil? ? nil : within[:unit])
         
         # Find the matching event and then move to the next one for selection.
+        body << "if cursor:eos() or cursor:eof() then return false end"
         body << "remaining = #{within[:quantity].to_i}" if within_unit == 'step'
         body << "repeat"
         body << "  if remaining <= 0 then return false end" if within_unit == 'step'

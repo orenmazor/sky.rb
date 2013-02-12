@@ -46,6 +46,7 @@ class TestQueryOnCondition < MiniTest::Unit::TestCase
     expected =
       <<-BLOCK.unindent
         function foo(cursor, data)
+          if cursor:eos() or cursor:eof() then return false end
           repeat
             if cursor.event.action_id == 10 then
               return true

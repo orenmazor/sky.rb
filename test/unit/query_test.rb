@@ -87,6 +87,7 @@ class TestQuery < MiniTest::Unit::TestCase
         end
         
         function __condition1(cursor, data)
+          if cursor:eos() or cursor:eof() then return false end
           repeat
             if cursor.event.action_id == 10 then
               cursor:next()
@@ -97,6 +98,7 @@ class TestQuery < MiniTest::Unit::TestCase
         end
         
         function __condition2(cursor, data)
+          if cursor:eos() or cursor:eof() then return false end
           repeat
             if cursor.event.action_id == 20 then
               cursor:next()

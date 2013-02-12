@@ -53,6 +53,7 @@ class TestQueryAfterCondition < MiniTest::Unit::TestCase
     expected =
       <<-BLOCK.unindent
         function foo(cursor, data)
+          if cursor:eos() or cursor:eof() then return false end
           repeat
             if cursor.event.action_id == 10 then
               cursor:next()
@@ -70,6 +71,7 @@ class TestQueryAfterCondition < MiniTest::Unit::TestCase
     expected =
       <<-BLOCK.unindent
         function foo(cursor, data)
+          if cursor:eos() or cursor:eof() then return false end
           remaining = 1
           repeat
             if remaining <= 0 then return false end

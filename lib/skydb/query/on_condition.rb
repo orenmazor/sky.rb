@@ -34,6 +34,7 @@ class SkyDB
           body << "return (cursor.session_event_index == 0)"
         else
           # Only move to the next event if directed to by the options.
+          body << "if cursor:eos() or cursor:eof() then return false end"
           body << "repeat"
           body << "  if cursor.event.action_id == #{action.id.to_i} then"
           body << "    return true"
