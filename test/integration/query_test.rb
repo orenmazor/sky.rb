@@ -86,4 +86,17 @@ class TestQuery < MiniTest::Unit::TestCase
       .execute()
     assert_equal ({5=>{"count"=>1}}), results
   end
+
+  def test_double_after
+    import("integration/query/double_after.json")
+    query = SkyDB.query.session(7200)
+    results = query.select('count()')
+      .group_by("action_id")
+      .on(:enter)
+      .after(:action => "/", :within => {:quantity => 1, :unit => 'step'})
+      .after(:action => "/login", :within => {:quantity => 1, :unit => 'step'})
+      .after(:action => "/login", :within => {:quantity => 1, :unit => 'step'})
+      .execute()
+    assert_equal ({"exit"=>{"count"=>1}}), results
+  end
 end
