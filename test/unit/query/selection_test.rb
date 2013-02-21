@@ -141,12 +141,12 @@ class TestQuerySelection < MiniTest::Unit::TestCase
   end
 
   def test_max_codegen
-    @selection.fields = SkyDB::Query::Selection.parse_fields("min(foo) bar")
+    @selection.fields = SkyDB::Query::Selection.parse_fields("max(foo) bar")
     expected =
       <<-BLOCK.unindent
         function select(cursor, data)
           target = data
-          if(target.bar == nil or target.bar > cursor.event.foo()) then
+          if(target.bar == nil or target.bar < cursor.event.foo()) then
             target.bar = cursor.event.foo()
           end
         end
