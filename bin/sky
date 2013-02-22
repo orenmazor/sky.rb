@@ -21,6 +21,7 @@ SkyDB.debug = true
 command :import do |c|
   c.syntax = 'sky import FILE'
   c.description = 'Imports data from a text file into a Sky table.'
+  c.option('--processes NUM', 'The number of processes to use.')
   c.option('--table STRING', 'The name of the table to import to.')
   c.option('--format STRING', 'The YAML format file to import with.')
   c.option('--file-type STRING', 'The type of file being imported (tsv,json,csv,apache_log).')
@@ -41,6 +42,7 @@ command :import do |c|
     importer.table_name = options.table || ask("Table: ")
     importer.headers = options.headers.nil? ? nil : options.headers.split(/,/)
     importer.file_type = options.file_type.nil? ? nil : options.file_type.to_sym
+    importer.processes = options.processes.nil? ? 1 : options.processes.to_i
     
     # Load transform files by name.
     formats = options.format || ask("Format: ")

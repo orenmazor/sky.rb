@@ -35,6 +35,7 @@ class SkyDB
         self.table_name  = options[:table_name]
         self.format = options[:format]
         self.files  = options[:files] || []
+        self.processes = options[:processes] || 1
       end
     
 
@@ -44,6 +45,9 @@ class SkyDB
       #
       ##########################################################################
 
+      # The number of processes to use.
+      attr_accessor :processes
+      
       # The client to access the Sky server with.
       attr_accessor :client
 
@@ -98,37 +102,51 @@ class SkyDB
           end
           cnt + %x{wc -l #{file}|tail -1}.split.first.to_i
         end
-
-        progress_bar = ::ProgressBar.create(:total => count, :format => '|%B| %P%%') if options[:progress_bar]
+        progress_bar = ::ProgressBar.create(:total => count, :format => '|%B| %P%%') if (options[:progress_bar] and self.processes == 1)
 
         # Loop over each of the files.
         files_expanded = files.inject([]) {|fs,fg| fs.concat(Dir[File.expand_path(fg)].delete_if{|f| File.directory?(f)}); fs}
-        SkyDB.multi(:max_count => 1000) do
-          files_expanded.each do |file|
-            each_record(file, options) do |input|
-              # Convert input line to a symbolized hash.
-              output = translate(input)
-              output._symbolize_keys!
-              
-              # p output
-
-              if output[:object_id].nil?
-                progress_bar.clear() unless progress_bar.nil?
-                $stderr.puts "[ERROR] Object id required on line #{$.}"
-              elsif output[:timestamp].nil?
-                progress_bar.clear() unless progress_bar.nil?
-                $stderr.puts "[ERROR] Invalid timestamp on line #{$.}"
-              else
-                # Convert hash to an event and send to Sky.
-                event = SkyDB::Event.new(output)
-                SkyDB.add_event(event)
-              end
+        file_groups =
+          if processes > 1
+            files_per_group = (files_expanded.size/Float(self.processes)).ceil
+            files_expanded.each_slice(files_per_group).to_a
+          else
+            [files_expanded]
+          end
+        process_ids = []
+  
+        for i in (0...processes)
+          process_ids << fork do
+            SkyDB.multi(:max_count => 1000) do
+              file_groups[i].each do |file|
+                # puts "process[#{i}] -> #{file}"
+                each_record(file, options) do |input|
+                  # Convert input line to a symbolized hash.
+                  output = translate(input)
+                  output._symbolize_keys!
             
-              # Update progress bar.
-              progress_bar.increment() unless progress_bar.nil?
+                  # p output
+ 
+                  if output[:object_id].nil?
+                    progress_bar.clear() unless progress_bar.nil?
+                    $stderr.puts "[ERROR] Object id required on line #{$.}"
+                  elsif output[:timestamp].nil?
+                    progress_bar.clear() unless progress_bar.nil?
+                    $stderr.puts "[ERROR] Invalid timestamp on line #{$.}"
+                  else
+                    # Convert hash to an event and send to Sky.
+                    event = SkyDB::Event.new(output)
+                    SkyDB.add_event(event)
+                  end
+          
+                  # Update progress bar.
+                  progress_bar.increment() unless progress_bar.nil?
+                end
+              end
             end
           end
         end
+        process_ids.each { |process_id|  Process.waitpid(process_id) }
 
         # Finish progress bar.
         progress_bar.finish() unless progress_bar.nil? || progress_bar.finished?
