@@ -119,6 +119,32 @@ class TestImporter < MiniTest::Unit::TestCase
     assert_equal '[import] Determining file type: apache_log', err.chomp
   end
 
+  def test_import_bzip2_apache_log
+    out, err = capture_io do
+      event = mock()
+      SkyDB::Event.expects(:new).with(:object_id => '66.29.187.16', :timestamp => DateTime.parse("2013-01-13T04:05:07+00:00"), :action => {:name => "/users/1"}).returns(event)
+      SkyDB.expects(:add_event).with(event)
+      @importer.load_transform_file('apache')
+      @importer.file_type = :apache_log
+      @importer.import(['fixtures/unit/importer/simple.log.bz2'])
+    end
+    assert_equal '', out
+    assert_equal '', err
+  end
+
+  def test_import_gzip_apache_log
+    out, err = capture_io do
+      event = mock()
+      SkyDB::Event.expects(:new).with(:object_id => '66.29.187.16', :timestamp => DateTime.parse("2013-01-13T04:05:07+00:00"), :action => {:name => "/users/1"}).returns(event)
+      SkyDB.expects(:add_event).with(event)
+      @importer.load_transform_file('apache')
+      @importer.file_type = :apache_log
+      @importer.import(['fixtures/unit/importer/simple.log.gz'])
+    end
+    assert_equal '', out
+    assert_equal '', err
+  end
+
   def test_import_override_file_type
     out, err = capture_io do
       event = mock()

@@ -1,6 +1,8 @@
 require 'yaml'
 require 'csv'
 require 'yajl'
+require 'zlib'
+require 'bzip2'
 require 'open-uri'
 require 'ruby-progressbar'
 require 'apachelogregex'
@@ -88,7 +90,15 @@ class SkyDB
         SkyDB.table_name = table_name
 
         # Initialize progress bar.
-        count = files.inject(0) {|cnt,file| cnt + %x{wc -l #{file}|tail -1}.split.first.to_i}
+        count = files.inject(0) do |cnt,file|
+          # disable progress bar if using compressed files
+          if Dir.glob(file).detect{|f|['.gz','.bz2'].include?(File.extname(f).downcase)}
+            options[:progress_bar] = false
+            break
+          end
+          cnt + %x{wc -l #{file}|tail -1}.split.first.to_i
+        end
+
         progress_bar = ::ProgressBar.create(:total => count, :format => '|%B| %P%%') if options[:progress_bar]
 
         # Loop over each of the files.
@@ -124,6 +134,30 @@ class SkyDB
         progress_bar.finish() unless progress_bar.nil? || progress_bar.finished?
         
         return nil
+      end
+
+
+      ##################################
+      # File Iteration
+      ##################################
+    
+      def file_foreach(file, &block)
+        case File.extname(file).downcase
+        when '.bz2'
+          Bzip2::Reader.foreach(file) do |line|
+            yield line
+          end
+        when '.gz'
+          Zlib::GzipReader.open(file) do |f|
+            f.each_line(file) do |line|
+              yield line
+            end
+          end
+        else
+          File.foreach(file) do |line|
+            yield line
+          end
+        end
       end
 
 
@@ -211,7 +245,7 @@ class SkyDB
         format = options[:format] || '%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"'
         parser = ApacheLogRegex.new(format)
 
-        File.foreach(file) do |line|
+        file_foreach(file) do |line|
           begin
             hash = parser.parse!(line)
             m, method, url = *hash['%r'].to_s.match(/^(\w+) ([^ ]+)/)

@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.add_dependency('chronic', '~> 0.9.0')
   s.add_dependency('treetop', '~> 1.4.12')
   s.add_dependency('yajl-ruby', '~> 1.1.0')
+  s.add_dependency('bzip2-ruby', '~> 0.2.7')
   s.add_dependency('apachelogregex', '~> 0.1.0')
   s.add_dependency('useragent', '~> 0.4.16')
 
