@@ -60,7 +60,7 @@ class TestImporter < MiniTest::Unit::TestCase
       @importer.import(['fixtures/unit/importer/simple.csv'], :progress_bar => false)
     end
     assert_equal '', out
-    assert_equal '', err
+    assert_equal '[import] Determining file type: csv', err.chomp
   end
 
   def test_import_tsv
@@ -78,7 +78,7 @@ class TestImporter < MiniTest::Unit::TestCase
       @importer.import(['fixtures/unit/importer/simple.tsv'], :progress_bar => false)
     end
     assert_equal '', out
-    assert_equal '', err
+    assert_equal '[import] Determining file type: tsv', err.chomp
   end
 
   def test_import_json
@@ -96,7 +96,7 @@ class TestImporter < MiniTest::Unit::TestCase
       @importer.import(['fixtures/unit/importer/simple.json'], :progress_bar => false)
     end
     assert_equal '', out
-    assert_equal '', err
+    assert_equal '[import] Determining file type: json', err.chomp
   end
 
   def test_import_apache_log
@@ -116,6 +116,19 @@ class TestImporter < MiniTest::Unit::TestCase
       @importer.import(['fixtures/unit/importer/simple.log'], :progress_bar => false)
     end
     assert_equal '', out
+    assert_equal '[import] Determining file type: apache_log', err.chomp
+  end
+
+  def test_import_override_file_type
+    out, err = capture_io do
+      event = mock()
+      SkyDB::Event.expects(:new).with(:object_id => '100', :timestamp => Chronic.parse("2000-01-01T00:00:00Z"), :action => {:name => '/index.html'}).returns(event)
+      SkyDB.expects(:add_event).with(event)
+      @importer.load_transform_file('sky')
+      @importer.file_type = :csv
+      @importer.import(['fixtures/unit/importer/simple'], :progress_bar => false)
+    end
+    assert_equal '', out
     assert_equal '', err
   end
 
@@ -129,7 +142,7 @@ class TestImporter < MiniTest::Unit::TestCase
       @importer.import(['fixtures/unit/importer/no_headers.csv'], :progress_bar => false)
     end
     assert_equal '', out
-    assert_equal '', err
+    assert_equal '[import] Determining file type: csv', err.chomp
   end
 
   def test_import_bad_timestamp
@@ -141,14 +154,23 @@ class TestImporter < MiniTest::Unit::TestCase
       @importer.import(['fixtures/unit/importer/bad_timestamp.csv'], :progress_bar => false)
     end
     assert_equal '', out
-    assert_equal "[ERROR] Invalid timestamp on line 2", err.chomp
+    assert_equal(
+      "[import] Determining file type: csv\n" +
+      "[ERROR] Invalid timestamp on line 2",
+      err.chomp
+    )
   end
   
   def test_import_unsupported_file_type
-    e = assert_raises(SkyDB::Import::Importer::UnsupportedFileType) do
-      @importer.import(['fixtures/unit/importer/unsupported.xxx'], :progress_bar => false)
+    e = nil
+    out, err = capture_io do
+      e = assert_raises(SkyDB::Import::Importer::UnsupportedFileType) do
+        @importer.import(['fixtures/unit/importer/unsupported.xxx'], :progress_bar => false)
+      end
     end
     assert_equal 'File type not supported by importer: .xxx', e.message
+    assert_equal '', out
+    assert_equal "[import] Determining file type: ???", err.chomp
   end
   
   def test_import_transform_not_found

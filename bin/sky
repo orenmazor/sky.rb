@@ -23,6 +23,7 @@ command :import do |c|
   c.description = 'Imports data from a text file into a Sky table.'
   c.option('--table STRING', 'The name of the table to import to.')
   c.option('--format STRING', 'The YAML format file to import with.')
+  c.option('--file-type STRING', 'The type of file being imported (tsv,json,csv,apache_log).')
   c.option('--headers STRING', 'A comma-delimited list of headers to use.')
   c.option('--append', 'Appends to an existing database if one exists.')
   c.option('--overwrite', 'Overwrites an existing database if one exists.')
@@ -39,6 +40,7 @@ command :import do |c|
     importer = SkyDB::Import::Importer.new()
     importer.table_name = options.table || ask("Table: ")
     importer.headers = options.headers.nil? ? nil : options.headers.split(/,/)
+    importer.file_type = options.file_type.nil? ? nil : options.file_type.to_sym
     
     # Load transform files by name.
     formats = options.format || ask("Format: ")

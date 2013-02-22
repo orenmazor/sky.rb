@@ -61,6 +61,10 @@ class SkyDB
       # treat the CSV input as not having a header row.
       attr_accessor :headers
 
+      # The file type of file being imported can be one of
+      # :csv, :tsv, :json, :apache_log
+      attr_accessor :file_type
+
 
       ##########################################################################
       #
@@ -133,17 +137,20 @@ class SkyDB
       # @param [String] file  the path to the file to iterate over.
       def each_record(file, options)
         # Determine file type automatically if not passed in.
-        file_type = 
-          case File.extname(file)
-          when '.tsv' then :tsv
-          when '.txt' then :tsv
-          when '.json' then :json
-          when '.csv' then :csv
-          when '.log' then :apache_log
-          end
+        if self.file_type.nil?
+          self.file_type = 
+            case File.extname(file)
+            when '.tsv' then :tsv
+            when '.txt' then :tsv
+            when '.json' then :json
+            when '.csv' then :csv
+            when '.log' then :apache_log
+            end
+          warn("[import] Determining file type: #{self.file_type || '???'}")
+        end
         
         # Process the record by file type.
-        case file_type
+        case self.file_type
         when :csv then each_text_record(file, ",", options, &Proc.new)
         when :tsv then each_text_record(file, "\t", options, &Proc.new)
         when :json then each_json_record(file, options, &Proc.new)
