@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    skydb (0.2.2)
+    skydb (0.2.3)
       apachelogregex (~> 0.1.0)
       bzip2-ruby (~> 0.2.7)
       chronic (~> 0.9.0)
