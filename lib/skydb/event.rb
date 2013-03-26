@@ -27,11 +27,7 @@ class SkyDB
 
     # The timestamp as ISO8601 formatted string with fractional seconds.
     def formatted_timestamp()
-      if timestamp.nil?
-        return nil
-      else
-        return timestamp.to_time.utc.to_datetime.strftime('%Y-%m-%dT%H:%M:%S.%6NZ')
-      end
+      return SkyDB.format_timestamp(timestamp)
     end
 
 

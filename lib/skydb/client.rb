@@ -151,9 +151,21 @@ class SkyDB
     # @return [Array]  the list of events on the table.
     def get_events(table, object_id, options={})
       raise ArgumentError.new("Table required") if table.nil?
+      raise ArgumentError.new("Object identifier required") if object_id.nil?
       events = send(:get, "/tables/#{table.name}/objects/#{object_id}/events")
       events.map!{|e| Event.new().from_hash(e)}
       return events
+    end
+
+    # Retrieves the event that occurred at a given point in time for an object.
+    #
+    # @return [Event]  the event.
+    def get_event(table, object_id, timestamp, options={})
+      raise ArgumentError.new("Table required") if table.nil?
+      raise ArgumentError.new("Object identifier required") if object_id.nil?
+      raise ArgumentError.new("Timestamp required") if timestamp.nil?
+      data = send(:get, "/tables/#{table.name}/objects/#{object_id}/events/#{SkyDB.format_timestamp(timestamp)}")
+      return Event.new().from_hash(data)
     end
 
 

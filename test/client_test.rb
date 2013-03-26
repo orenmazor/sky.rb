@@ -92,4 +92,12 @@ class TestClient < MiniTest::Unit::TestCase
     assert_equal("1970-01-01T00:00:00.500000Z", events[1].formatted_timestamp)
     assert_equal({'action' => '/pricing'}, events[1].data)
   end
+
+  def test_get_event
+    stub_request(:get, "http://localhost:8585/tables/foo/objects/xxx/events/1970-01-01T00:00:00.000000Z")
+      .to_return(:status => 200, :body => '{"timestamp":"1970-01-01T00:00:00.000000Z","data":{"action":"/home"}}')
+    event = @client.get_event(@table, "xxx", DateTime.iso8601('1970-01-01T00:00:00Z'))
+    assert_equal("1970-01-01T00:00:00.000000Z", event.formatted_timestamp)
+    assert_equal({'action' => '/home'}, event.data)
+  end
 end
