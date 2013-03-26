@@ -97,6 +97,18 @@ class SkyDB
       return properties
     end
 
+    # Retrieves a single property by name.
+    #
+    # @param [Table] table  The table to retrieve from.
+    # @param [String] name  The name of the property to retrieve.
+    #
+    # @return [Array]  the list of properties on the table.
+    def get_property(table, name, options={})
+      raise ArgumentError.new("Table required") if table.nil?
+      data = send(:get, "/tables/#{table.name}/properties/#{name}")
+      return Property.new().from_hash(data)
+    end
+
     # Creates a property on a table.
     #
     # @param [Property] property  the property to create.

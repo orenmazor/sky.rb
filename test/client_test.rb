@@ -37,24 +37,30 @@ class TestClient < MiniTest::Unit::TestCase
   # Property API
   ######################################
 
+  def test_get_properties
+    stub_request(:get, "http://localhost:8585/tables/foo/properties")
+      .to_return(:status => 200, :body => '[{"id":-1,"name":"action","transient":true,"dataType":"string"},{"id":1,"name":"first_name","transient":false,"dataType":"integer"}]')
+    properties = @client.get_properties(@table)
+    assert_equal(2, properties.length)
+    assert_equal("action", properties[0].name)
+    assert_equal("first_name", properties[1].name)
+  end
+
+  def test_get_property
+    stub_request(:get, "http://localhost:8585/tables/foo/properties/action")
+      .to_return(:status => 200, :body => '{"id":-1,"name":"action","transient":true,"dataType":"string"}')
+    property = @client.get_property(@table, "action")
+    assert_equal("action", property.name)
+  end
+
   def test_create_property
     stub_request(:post, "http://localhost:8585/tables/foo/properties")
       .with(:body => '{"name":"action","transient":true,"dataType":"string"}')
       .to_return(:status => 200, :body => '{"id":-1,"name":"action","transient":true,"dataType":"string"}')
-
     property = @client.create_property(@table, SkyDB::Property.new(:name => 'action', :transient => true, :data_type => 'string'))
     assert_equal("action", property.name)
     assert_equal(true, property.transient)
     assert_equal("string", property.data_type)
   end
 
-  def test_get_properties
-    stub_request(:get, "http://localhost:8585/tables/foo/properties")
-      .to_return(:status => 200, :body => '[{"id":-1,"name":"action","transient":true,"dataType":"string"},{"id":1,"name":"first_name","transient":false,"dataType":"integer"}]')
-
-    properties = @client.get_properties(@table)
-    assert_equal(2, properties.length)
-    assert_equal("action", properties[0].name)
-    assert_equal("first_name", properties[1].name)
-  end
 end
