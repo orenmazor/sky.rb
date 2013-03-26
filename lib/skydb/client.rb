@@ -195,6 +195,19 @@ class SkyDB
       return event.from_hash(data)
     end
 
+    # Deletes an event for an object on a table.
+    #
+    # @param [Table] table  the table the object belongs to.
+    # @param [String] object_id  the object's identifier.
+    # @param [Event] event  the event to delete.
+    def delete_event(table, object_id, event, options={})
+      raise ArgumentError.new("Table required") if table.nil?
+      raise ArgumentError.new("Object identifier required") if object_id.nil?
+      raise ArgumentError.new("Event required") if event.nil?
+      raise ArgumentError.new("Event timestamp required") if event.timestamp.nil?
+      send(:delete, "/tables/#{table.name}/objects/#{object_id}/events/#{SkyDB.format_timestamp(event.timestamp)}")
+      return nil
+    end
 
     ####################################
     # HTTP Utilities

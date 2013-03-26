@@ -120,4 +120,10 @@ class TestClient < MiniTest::Unit::TestCase
     assert_equal("1970-01-01T00:00:00.000000Z", event.formatted_timestamp)
     assert_equal({'action' => '/home', 'first_name' => 'bob'}, event.data)
   end
+
+  def test_delete_event
+    stub_request(:delete, "http://localhost:8585/tables/foo/objects/xxx/events/1970-01-01T00:00:00.000000Z")
+      .to_return(:status => 200)
+    @client.delete_event(@table, "xxx", SkyDB::Event.new(:timestamp => DateTime.iso8601('1970-01-01T00:00:00Z')))
+  end
 end
