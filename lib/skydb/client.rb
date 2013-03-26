@@ -114,9 +114,31 @@ class SkyDB
     # @param [Property] property  the property to create.
     def create_property(table, property, options={})
       raise ArgumentError.new("Table required") if table.nil?
-      raise ArgumentError.new("Property required") if table.nil?
+      raise ArgumentError.new("Property required") if property.nil?
       data = send(:post, "/tables/#{table.name}/properties", property.to_hash)
       return property.from_hash(data)
+    end
+
+    # Updates a property on a table.
+    #
+    # @param [Property] property  the property to update.
+    def update_property(table, property, options={})
+      raise ArgumentError.new("Table required") if table.nil?
+      raise ArgumentError.new("Property required") if property.nil?
+      raise ArgumentError.new("Property name required") if property.name.to_s == ''
+      data = send(:patch, "/tables/#{table.name}/properties/#{property.name}", property.to_hash)
+      return property.from_hash(data)
+    end
+
+    # Deletes a property on a table.
+    #
+    # @param [Property] property  the property to delete.
+    def delete_property(table, property, options={})
+      raise ArgumentError.new("Table required") if table.nil?
+      raise ArgumentError.new("Property required") if property.nil?
+      raise ArgumentError.new("Property name required") if property.name.to_s == ''
+      send(:delete, "/tables/#{table.name}/properties/#{property.name}")
+      return nil
     end
 
 

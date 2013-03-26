@@ -63,4 +63,17 @@ class TestClient < MiniTest::Unit::TestCase
     assert_equal("string", property.data_type)
   end
 
+  def test_update_property
+    stub_request(:patch, "http://localhost:8585/tables/foo/properties/action2")
+      .with(:body => '{"name":"action2","transient":true,"dataType":"string","id":-1}')
+      .to_return(:status => 200, :body => '{"id":-1,"name":"action2","transient":true,"dataType":"string"}')
+    property = @client.update_property(@table, SkyDB::Property.new(:id => -1, :name => 'action2', :transient => true, :data_type => 'string'))
+    assert_equal("action2", property.name)
+  end
+
+  def test_delete_property
+    stub_request(:delete, "http://localhost:8585/tables/foo/properties/action")
+      .to_return(:status => 200)
+    @client.delete_property(@table, SkyDB::Property.new(:name => 'action'))
+  end
 end
