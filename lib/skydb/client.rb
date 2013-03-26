@@ -168,6 +168,33 @@ class SkyDB
       return Event.new().from_hash(data)
     end
 
+    # Adds an event to an object.
+    #
+    # @param [Table] table  the table the object belongs to.
+    # @param [String] object_id  the object's identifier.
+    # @param [Event] event  the event to add.
+    #
+    # @return [Event]  the event.
+    def add_event(table, object_id, event, options={})
+      options = {:method => :merge}.merge(options)
+      
+      raise ArgumentError.new("Table required") if table.nil?
+      raise ArgumentError.new("Object identifier required") if object_id.nil?
+      raise ArgumentError.new("Event required") if event.nil?
+      raise ArgumentError.new("Event timestamp required") if event.timestamp.nil?
+
+      # The insertion method is communicated to the server through the HTTP method.
+      http_method = case options[:method]
+        when :replace then :put
+        when :merge then :patch
+        else raise ArgumentError.new("Invalid event insertion method: #{options[:method]}")
+        end
+
+      # Send the event and parse it when it comes back. It could have changed.
+      data = send(http_method, "/tables/#{table.name}/objects/#{object_id}/events/#{SkyDB.format_timestamp(event.timestamp)}", event.to_hash)
+      return event.from_hash(data)
+    end
+
 
     ####################################
     # HTTP Utilities

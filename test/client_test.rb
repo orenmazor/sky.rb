@@ -100,4 +100,24 @@ class TestClient < MiniTest::Unit::TestCase
     assert_equal("1970-01-01T00:00:00.000000Z", event.formatted_timestamp)
     assert_equal({'action' => '/home'}, event.data)
   end
+
+  def test_replace_event
+    stub_request(:put, "http://localhost:8585/tables/foo/objects/xxx/events/1970-01-01T00:00:00.000000Z")
+      .with(:body => '{"timestamp":"1970-01-01T00:00:00.000000Z","data":{"action":"/home"}}')
+      .to_return(:status => 200, :body => '{"timestamp":"1970-01-01T00:00:00.000000Z","data":{"action":"/home"}}')
+    event = SkyDB::Event.new(:timestamp => DateTime.iso8601('1970-01-01T00:00:00Z'), :data => {'action' => '/home'})
+    event = @client.add_event(@table, "xxx", event, :method => :replace)
+    assert_equal("1970-01-01T00:00:00.000000Z", event.formatted_timestamp)
+    assert_equal({'action' => '/home'}, event.data)
+  end
+
+  def test_merge_event
+    stub_request(:patch, "http://localhost:8585/tables/foo/objects/xxx/events/1970-01-01T00:00:00.000000Z")
+      .with(:body => '{"timestamp":"1970-01-01T00:00:00.000000Z","data":{"action":"/home"}}')
+      .to_return(:status => 200, :body => '{"timestamp":"1970-01-01T00:00:00.000000Z","data":{"action":"/home","first_name":"bob"}}')
+    event = SkyDB::Event.new(:timestamp => DateTime.iso8601('1970-01-01T00:00:00Z'), :data => {'action' => '/home'})
+    event = @client.add_event(@table, "xxx", event, :method => :merge)
+    assert_equal("1970-01-01T00:00:00.000000Z", event.formatted_timestamp)
+    assert_equal({'action' => '/home', 'first_name' => 'bob'}, event.data)
+  end
 end
