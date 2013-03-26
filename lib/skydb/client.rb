@@ -143,6 +143,21 @@ class SkyDB
 
 
     ####################################
+    # Event API
+    ####################################
+
+    # Retrieves all events for a given object.
+    #
+    # @return [Array]  the list of events on the table.
+    def get_events(table, object_id, options={})
+      raise ArgumentError.new("Table required") if table.nil?
+      events = send(:get, "/tables/#{table.name}/objects/#{object_id}/events")
+      events.map!{|e| Event.new().from_hash(e)}
+      return events
+    end
+
+
+    ####################################
     # HTTP Utilities
     ####################################
     

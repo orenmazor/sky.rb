@@ -6,7 +6,7 @@ class SkyDB
     #
     ##########################################################################
 
-    # Initializes the table.
+    # Initializes the property.
     def initialize(options={})
       self.id = options[:id].to_i
       self.name = options[:name]

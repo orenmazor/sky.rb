@@ -76,4 +76,20 @@ class TestClient < MiniTest::Unit::TestCase
       .to_return(:status => 200)
     @client.delete_property(@table, SkyDB::Property.new(:name => 'action'))
   end
+
+
+  ######################################
+  # Event API
+  ######################################
+
+  def test_get_events
+    stub_request(:get, "http://localhost:8585/tables/foo/objects/xxx/events")
+      .to_return(:status => 200, :body => '[{"timestamp":"1970-01-01T00:00:00Z","data":{"action":"/home"}},{"timestamp":"1970-01-01T00:00:00.5Z","data":{"action":"/pricing"}}]')
+    events = @client.get_events(@table, "xxx")
+    assert_equal(2, events.length)
+    assert_equal("1970-01-01T00:00:00.000000Z", events[0].formatted_timestamp)
+    assert_equal({'action' => '/home'}, events[0].data)
+    assert_equal("1970-01-01T00:00:00.500000Z", events[1].formatted_timestamp)
+    assert_equal({'action' => '/pricing'}, events[1].data)
+  end
 end

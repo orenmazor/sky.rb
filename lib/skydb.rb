@@ -27,6 +27,7 @@ class SkyDB
 end
 
 require 'skydb/client'
-require 'skydb/property'
 require 'skydb/table'
+require 'skydb/property'
+require 'skydb/event'
 require 'skydb/version'
