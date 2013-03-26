@@ -211,6 +211,23 @@ class SkyDB
 
 
     ####################################
+    # Query API
+    ####################################
+
+    # Runs a query against a given table.
+    #
+    # @param [Table] table  The table to query.
+    # @param [Hash] q  The query definition to run.
+    #
+    # @return [Results]  the results of the query.
+    def query(table, q, options={})
+      raise ArgumentError.new("Table required") if table.nil?
+      raise ArgumentError.new("Query definition required") if q.nil?
+      return send(:post, "/tables/#{table.name}/query", q)
+    end
+
+
+    ####################################
     # Utility API
     ####################################
 

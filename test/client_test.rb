@@ -129,6 +129,19 @@ class TestClient < MiniTest::Unit::TestCase
 
 
   ######################################
+  # Query API
+  ######################################
+
+  def test_query
+    stub_request(:post, "http://localhost:8585/tables/foo/query")
+      .with(:body => '{"steps":[{"type":"selection","alias":"count","expression":"count()"}]}')
+      .to_return(:status => 200, :body => '{"count":5}'+"\n")
+    results = @client.query(@table, {:steps => [:type => 'selection', :alias => 'count', :expression => 'count()']})
+    assert_equal({'count' => 5}, results)
+  end
+
+
+  ######################################
   # Utility API
   ######################################
 
