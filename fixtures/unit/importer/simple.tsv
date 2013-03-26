@@ -1,5 +1,0 @@
-object_id	timestamp	action.name
-100	2000-01-01T00:00:00Z	/index.html
-100	2000-01-01T00:01:00Z	/signup.html
-100	2000-01-01T00:02:00Z	/buy.html
-101	2000-01-02T12:00:00Z	/index.html

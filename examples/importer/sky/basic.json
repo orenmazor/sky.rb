@@ -1,4 +1,0 @@
-{"object_id":100, "timestamp":"2012-01-01T00:00:00Z", "action":{"name":"/index.html", "purchase_amount:float":0.0}, "data":{"gender":"male", "age":35, "rewards_member":false}}
-{"object_id":100, "timestamp":"2012-01-01T00:01:00Z", "action":{"name":"/signup.html", "purchase_amount:float":0.0}, "data":{"gender":"male", "age":35, "rewards_member":true}}
-{"object_id":100, "timestamp":"2012-01-01T00:02:00Z", "action":{"name":"/buy.html", "purchase_amount:float":9.95}, "data":{"gender":"male", "age":35, "rewards_member":true}}
-{"object_id":101, "timestamp":"2012-02-01T07:35:00Z", "action":{"name":"/buy.html", "purchase_amount:float":100.00}, "data":{"gender":"male", "age":23, "rewards_member":false}}

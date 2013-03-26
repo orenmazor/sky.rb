@@ -73,13 +73,22 @@ class SkyDB
       return Table.new().from_hash(data)
     end
 
+    # Deletes a table on the server.
+    #
+    # @param [Table] table  the table to delete.
+    def delete_table(table, options={})
+      raise ArgumentError.new("Table required") if table.nil?
+      send(:delete, "/tables/#{table.name}")
+      return nil
+    end
+
 
     ####################################
     # HTTP Utilities
     ####################################
     
     # Executes a RESTful JSON over HTTP POST.
-    def send(method, path, data)
+    def send(method, path, data=nil)
       # Generate a JSON request.
       request = case method
         when :get then Net::HTTP::Get.new(path)

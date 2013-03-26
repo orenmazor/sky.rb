@@ -25,4 +25,9 @@ class TestClient < MiniTest::Unit::TestCase
     table = @client.create_table(SkyDB::Table.new(:name => 'foo'))
     assert_equal("foo", table.name)
   end
+
+  def test_delete_table
+    stub_request(:delete, "http://localhost:8585/tables/foo").to_return(:status => 200)
+    @client.delete_table(SkyDB::Table.new(:name => 'foo'))
+  end
 end

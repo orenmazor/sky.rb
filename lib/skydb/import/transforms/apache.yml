@@ -1,4 +1,0 @@
-translate: |
-  output[:object_id] = input[:ip_address]
-  output[:timestamp] = input[:timestamp]
-  output[:action][:name] = input[:url]
