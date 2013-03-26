@@ -1,22 +1,6 @@
 require 'date'
-require 'msgpack'
-require 'socket'
-require 'treetop'
+require 'net/http'
 require 'json'
-
-require 'skydb/action'
-require 'skydb/client'
-require 'skydb/event'
-require 'skydb/message'
-require 'skydb/property'
-require 'skydb/query'
-require 'skydb/table'
-require 'skydb/timestamp'
-require 'skydb/version'
-
-require 'ext/hash'
-require 'ext/string'
-require 'ext/treetop'
 
 class SkyDB
   ############################################################################
@@ -25,10 +9,7 @@ class SkyDB
   #
   ############################################################################
 
-  class TableRequiredError < StandardError; end
-
-  class ObjectIdRequiredError < StandardError; end
-  class TimestampRequiredError < StandardError; end
+  class SkyError < StandardError; end
 
   ############################################################################
   #
@@ -38,15 +19,7 @@ class SkyDB
 
   CLIENT_PASSTHROUGH = [
     :host, :host=, :port, :port=,
-    :table_name, :table_name=,
-    :multi, :ping, :lookup,
-    :add_event,
-    :create_table, :delete_table, :get_table, :get_tables,
-    :add_action, :get_action, :get_actions,
-    :add_property, :get_property, :get_properties,
-    :next_actions,
-    :aggregate,
-    :query, :select
+    :create_table
   ]
   
   
@@ -86,11 +59,10 @@ class SkyDB
   ############################################################################
 
   def self.method_missing(method, *args, &block)
-    method = method
-    if CLIENT_PASSTHROUGH.include?(method.to_sym)
-      client.__send__(method.to_sym, *args, &block)
-    else
-      raise NoMethodError.new("Message type not available: #{method}")
-    end
+    client.__send__(method.to_sym, *args, &block)
   end
 end
+
+require 'skydb/client'
+require 'skydb/table'
+require 'skydb/version'
