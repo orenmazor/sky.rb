@@ -70,7 +70,7 @@ class SkyDB
     def create_table(table, options={})
       raise ArgumentError.new("Table required") if table.nil?
       data = send(:post, "/tables", table.to_hash)
-      return Table.new().from_hash(data)
+      return table.from_hash(data)
     end
 
     # Deletes a table on the server.
@@ -80,6 +80,21 @@ class SkyDB
       raise ArgumentError.new("Table required") if table.nil?
       send(:delete, "/tables/#{table.name}")
       return nil
+    end
+
+
+    ####################################
+    # Property API
+    ####################################
+
+    # Creates a property on a table.
+    #
+    # @param [Property] property  the property to create.
+    def create_property(table, property, options={})
+      raise ArgumentError.new("Table required") if table.nil?
+      raise ArgumentError.new("Property required") if table.nil?
+      data = send(:post, "/tables/#{table.name}/properties", property.to_hash)
+      return property.from_hash(data)
     end
 
 

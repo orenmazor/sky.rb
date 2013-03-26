@@ -10,6 +10,7 @@ class TestClient < MiniTest::Unit::TestCase
 
   def setup
     @client = SkyDB::Client.new()
+    @table = SkyDB::Table.new(:name => 'foo')
   end
 
   
@@ -29,5 +30,21 @@ class TestClient < MiniTest::Unit::TestCase
   def test_delete_table
     stub_request(:delete, "http://localhost:8585/tables/foo").to_return(:status => 200)
     @client.delete_table(SkyDB::Table.new(:name => 'foo'))
+  end
+
+
+  ######################################
+  # Property API
+  ######################################
+
+  def test_create_property
+    stub_request(:post, "http://localhost:8585/tables/foo/properties")
+      .with(:body => '{"name":"action","transient":true,"dataType":"string"}')
+      .to_return(:status => 200, :body => '{"id":-1,"name":"action","transient":true,"dataType":"string"}')
+
+    property = @client.create_property(@table, SkyDB::Property.new(:name => 'action', :transient => true, :data_type => 'string'))
+    assert_equal("action", property.name)
+    assert_equal(true, property.transient)
+    assert_equal("string", property.data_type)
   end
 end
