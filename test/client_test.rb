@@ -126,4 +126,20 @@ class TestClient < MiniTest::Unit::TestCase
       .to_return(:status => 200)
     @client.delete_event(@table, "xxx", SkyDB::Event.new(:timestamp => DateTime.iso8601('1970-01-01T00:00:00Z')))
   end
+
+
+  ######################################
+  # Utility API
+  ######################################
+
+  def test_successful_ping
+    stub_request(:get, "http://localhost:8585/ping")
+      .to_return(:status => 200, :body => '{"message":"ok"}')
+    assert(@client.ping())
+  end
+
+  def test_unsuccessful_ping
+    stub_request(:get, "http://localhost:8585/ping").to_timeout
+    refute(@client.ping())
+  end
 end

@@ -209,6 +209,24 @@ class SkyDB
       return nil
     end
 
+
+    ####################################
+    # Utility API
+    ####################################
+
+    # Pings the server to determine if it is running.
+    #
+    # @return [Boolean]  true if the server is running, otherwise false.
+    def ping(options={})
+      begin
+        send(:get, "/ping")
+      rescue
+        return false
+      end
+      return true
+    end
+
+
     ####################################
     # HTTP Utilities
     ####################################
