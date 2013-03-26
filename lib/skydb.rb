@@ -13,18 +13,6 @@ class SkyDB
 
   ############################################################################
   #
-  # Constants
-  #
-  ############################################################################
-
-  CLIENT_PASSTHROUGH = [
-    :host, :host=, :port, :port=,
-    :create_table
-  ]
-  
-  
-  ############################################################################
-  #
   # Static Attributes
   #
   ############################################################################
@@ -35,31 +23,6 @@ class SkyDB
 
   class << self
     attr_accessor :debug
-  end
-
-  ######################################
-  # Default Client
-  ######################################
-  
-  # The default Sky client.
-  def self.client
-    @client ||= SkyDB::Client.new()
-    return @client
-  end
-
-  def self.client=(value)
-    @client = value
-  end
-  
-
-  ############################################################################
-  #
-  # Static Methods
-  #
-  ############################################################################
-
-  def self.method_missing(method, *args, &block)
-    client.__send__(method.to_sym, *args, &block)
   end
 end
 

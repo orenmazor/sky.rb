@@ -87,6 +87,16 @@ class SkyDB
     # Property API
     ####################################
 
+    # Retrieves a list of all properties on a table.
+    #
+    # @return [Array]  the list of properties on the table.
+    def get_properties(table, options={})
+      raise ArgumentError.new("Table required") if table.nil?
+      properties = send(:get, "/tables/#{table.name}/properties")
+      properties.map!{|p| Property.new().from_hash(p)}
+      return properties
+    end
+
     # Creates a property on a table.
     #
     # @param [Property] property  the property to create.
