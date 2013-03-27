@@ -244,9 +244,10 @@ class SkyDB
     # @param [Hash] q  The query definition to run.
     #
     # @return [Results]  the results of the query.
-    def query(table, q, options={})
+    def query(table, q)
       raise ArgumentError.new("Table required") if table.nil?
       raise ArgumentError.new("Query definition required") if q.nil?
+      q = {:steps => q} if q.is_a?(Array)
       return send(:post, "/tables/#{table.name}/query", q)
     end
 

@@ -129,9 +129,9 @@ class SkyDB
     # @param [Hash] q  The query definition to run.
     #
     # @return [Results]  the results of the query.
-    def query(q, options={})
+    def query(q)
       raise ArgumentError.new("Table not associated with client") if client.nil?
-      return client.query(self, q, options)
+      return client.query(self, q)
     end
 
 
