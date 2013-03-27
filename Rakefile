@@ -12,10 +12,18 @@ require 'skydb/version'
 #
 #############################################################################
 
-Rake::TestTask.new do |t|
-  t.options = "-v"
-  t.libs << "test"
-  t.test_files = FileList["test/*_test.rb", "test/**/*_test.rb"]
+namespace :test do
+  Rake::TestTask.new(:unit) do |t|
+    t.options = "-v"
+    t.libs << "test"
+    t.test_files = FileList["test/unit/*_test.rb", "test/unit/**/*_test.rb"]
+  end
+
+  Rake::TestTask.new(:integration) do |t|
+    t.options = "-v"
+    t.libs << "test"
+    t.test_files = FileList["test/integration/*_test.rb", "test/integration/**/*_test.rb"]
+  end
 end
 
 

@@ -51,7 +51,7 @@ class SkyDB
 
     # Decodes a hash into a event.
     def from_hash(hash, *a)
-      self.timestamp = !hash.nil? ? parse_timestamp(hash['timestamp']) : Time.utc.to_datetime.now()
+      self.timestamp = !hash.nil? ? parse_timestamp(hash['timestamp']) : Time.now.utc.to_datetime()
       self.data = !hash.nil? ? hash['data'] : {}
       return self
     end

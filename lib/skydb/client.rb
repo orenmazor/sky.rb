@@ -69,6 +69,7 @@ class SkyDB
     # @param [Table] table  the table to create.
     def create_table(table, options={})
       raise ArgumentError.new("Table required") if table.nil?
+      table = Table.new(table) if table.is_a?(Hash)
       data = send(:post, "/tables", table.to_hash)
       return table.from_hash(data)
     end
@@ -78,6 +79,7 @@ class SkyDB
     # @param [Table] table  the table to delete.
     def delete_table(table, options={})
       raise ArgumentError.new("Table required") if table.nil?
+      table = Table.new(table) if table.is_a?(Hash)
       send(:delete, "/tables/#{table.name}")
       return nil
     end
@@ -115,6 +117,7 @@ class SkyDB
     def create_property(table, property, options={})
       raise ArgumentError.new("Table required") if table.nil?
       raise ArgumentError.new("Property required") if property.nil?
+      property = Property.new(property) if property.is_a?(Hash)
       data = send(:post, "/tables/#{table.name}/properties", property.to_hash)
       return property.from_hash(data)
     end
@@ -126,6 +129,7 @@ class SkyDB
       raise ArgumentError.new("Table required") if table.nil?
       raise ArgumentError.new("Property required") if property.nil?
       raise ArgumentError.new("Property name required") if property.name.to_s == ''
+      property = Property.new(property) if property.is_a?(Hash)
       data = send(:patch, "/tables/#{table.name}/properties/#{property.name}", property.to_hash)
       return property.from_hash(data)
     end
@@ -137,6 +141,7 @@ class SkyDB
       raise ArgumentError.new("Table required") if table.nil?
       raise ArgumentError.new("Property required") if property.nil?
       raise ArgumentError.new("Property name required") if property.name.to_s == ''
+      property = Property.new(property) if property.is_a?(Hash)
       send(:delete, "/tables/#{table.name}/properties/#{property.name}")
       return nil
     end
@@ -181,6 +186,7 @@ class SkyDB
       raise ArgumentError.new("Table required") if table.nil?
       raise ArgumentError.new("Object identifier required") if object_id.nil?
       raise ArgumentError.new("Event required") if event.nil?
+      event = Event.new(event) if event.is_a?(Hash)
       raise ArgumentError.new("Event timestamp required") if event.timestamp.nil?
 
       # The insertion method is communicated to the server through the HTTP method.
@@ -204,6 +210,7 @@ class SkyDB
       raise ArgumentError.new("Table required") if table.nil?
       raise ArgumentError.new("Object identifier required") if object_id.nil?
       raise ArgumentError.new("Event required") if event.nil?
+      event = Event.new(event) if event.is_a?(Hash)
       raise ArgumentError.new("Event timestamp required") if event.timestamp.nil?
       send(:delete, "/tables/#{table.name}/objects/#{object_id}/events/#{SkyDB.format_timestamp(event.timestamp)}")
       return nil
@@ -266,6 +273,8 @@ class SkyDB
       json = JSON.parse(response.body) rescue nil
       message = json['message'] rescue nil
       
+      warn("#{method.to_s.upcase} #{path}: #{request.body} -> #{response.body}") if SkyDB.debug
+
       # Process based on the response code.
       case response
       when Net::HTTPSuccess then
