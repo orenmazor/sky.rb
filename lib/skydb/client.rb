@@ -70,6 +70,7 @@ class SkyDB
     def create_table(table, options={})
       raise ArgumentError.new("Table required") if table.nil?
       table = Table.new(table) if table.is_a?(Hash)
+      table.client = self
       data = send(:post, "/tables", table.to_hash)
       return table.from_hash(data)
     end
@@ -80,6 +81,7 @@ class SkyDB
     def delete_table(table, options={})
       raise ArgumentError.new("Table required") if table.nil?
       table = Table.new(table) if table.is_a?(Hash)
+      table.client = self
       send(:delete, "/tables/#{table.name}")
       return nil
     end
