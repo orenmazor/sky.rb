@@ -18,6 +18,22 @@ class TestClient < MiniTest::Unit::TestCase
   # Table API
   ######################################
 
+  def test_get_tables
+    stub_request(:get, "http://localhost:8585/tables")
+      .to_return(:status => 200, :body => '[{"name":"foo"},{"name":"bar"}]')
+    tables = @client.get_tables()
+    assert_equal(2, tables.length)
+    assert_equal("foo", tables[0].name)
+    assert_equal("bar", tables[1].name)
+  end
+
+  def test_get_table
+    stub_request(:get, "http://localhost:8585/tables/foo")
+      .to_return(:status => 200, :body => '{"name":"foo"}')
+    table = @client.get_table("foo")
+    assert_equal("foo", table.name)
+  end
+
   def test_create_table
     stub_request(:post, "http://localhost:8585/tables")
       .with(:body => '{"name":"foo"}')

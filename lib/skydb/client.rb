@@ -64,6 +64,21 @@ class SkyDB
     # Table API
     ####################################
 
+    # Retrieves a list of tables on the server.
+    def get_tables(options={})
+      data = send(:get, "/tables")
+      tables = data.map {|i| Table.new(:client => self).from_hash(i)}
+      return tables
+    end
+
+    # Retrieves a single table from the server.
+    def get_table(name, options={})
+      raise ArgumentError.new("Table name required") if name.nil?
+      data = send(:get, "/tables/#{name}")
+      table = Table.new(:client => self).from_hash(data)
+      return table
+    end
+
     # Creates a table on the server.
     #
     # @param [Table] table  the table to create.
