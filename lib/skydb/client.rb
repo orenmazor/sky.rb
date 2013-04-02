@@ -284,7 +284,7 @@ class SkyDB
         when :delete then Net::HTTP::Delete.new(path)
         end
       request.add_field('Content-Type', 'application/json')
-      request.body = JSON.generate(data) unless data.nil?
+      request.body = JSON.generate(data, :max_nesting => 200) unless data.nil?
       response = Net::HTTP.new(host, port).start {|http| http.request(request) }
       
       # Parse the body as JSON.

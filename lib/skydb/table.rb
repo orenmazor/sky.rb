@@ -149,5 +149,8 @@ class SkyDB
       self.name = hash.nil? ? '' : hash['name']
       return self
     end
+
+    def as_json(*a); return to_hash(*a); end
+    def to_json(*a); return as_json(*a).to_json; end
   end
 end
