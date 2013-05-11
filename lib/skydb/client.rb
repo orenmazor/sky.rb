@@ -1,4 +1,5 @@
 require 'net/http'
+require 'net/https'
 require 'json'
 
 class SkyDB
@@ -27,6 +28,8 @@ class SkyDB
     # The default port to connect to if one is not specified.
     DEFAULT_PORT = 8585
 
+    #use http by default
+    USE_SSL = false
 
     ##########################################################################
     #
@@ -38,6 +41,7 @@ class SkyDB
     def initialize(options={})
       self.host = options[:host] || DEFAULT_HOST
       self.port = options[:port] || DEFAULT_PORT
+      self.ssl = options[:ssl] || USE_SSL
     end
 
 
@@ -52,6 +56,9 @@ class SkyDB
 
     # The port on the host to connect to.
     attr_accessor :port
+
+    # Enable/Disable HTTPS
+    attr_accessor :ssl
 
 
     ##########################################################################
@@ -285,7 +292,14 @@ class SkyDB
         end
       request.add_field('Content-Type', 'application/json')
       request.body = JSON.generate(data, :max_nesting => 200) unless data.nil?
-      response = Net::HTTP.new(host, port).start {|http| http.request(request) }
+
+      http = Net::HTTP.new(host, port)
+      if ssl
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE #BAD
+      end
+
+      response = http.start {|h| h.request(request) }
       
       # Parse the body as JSON.
       json = JSON.parse(response.body) rescue nil
