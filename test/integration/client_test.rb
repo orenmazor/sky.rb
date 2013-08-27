@@ -57,7 +57,7 @@ class TestClient < MiniTest::Unit::TestCase
     table.add_event("count0", :timestamp => DateTime.iso8601('2013-01-01T00:00:02Z'), :data => {'action' => "A2"})
     table.add_event("count1", :timestamp => DateTime.iso8601('2013-01-01T00:00:00Z'), :data => {'action' => "A1"})
     table.add_event("count1", :timestamp => DateTime.iso8601('2013-01-01T00:00:05Z'), :data => {'action' => "A2"})
-    results = table.query({steps:[{:type => 'selection', :fields => [:name => 'count', :expression => 'count()']}]})
+    results = table.query({statements:[{:type => 'selection', :fields => [:name => 'count', :expression => 'count()']}]})
     @client.delete_table(table)
     assert_equal({'count' => 5}, results)
   end
@@ -72,10 +72,10 @@ class TestClient < MiniTest::Unit::TestCase
     table.add_event("fun1", :timestamp => DateTime.iso8601('2013-01-01T00:00:05Z'), :data => {'action' => "A1"})
     table.add_event("fun1", :timestamp => DateTime.iso8601('2013-01-01T00:00:10Z'), :data => {'action' => "A3"})
     results = table.query({
-      steps:[
-        {:type => 'condition', :expression => 'action == "A0"', :steps => [
-          {:type => 'condition', :expression => 'action == "A1"', :within => [1,1], :steps => [
-            {:type => 'condition', :expression => 'true', :within => [1,1], :steps => [
+      statements:[
+        {:type => 'condition', :expression => 'action == "A0"', :statements => [
+          {:type => 'condition', :expression => 'action == "A1"', :within => [1,1], :statements => [
+            {:type => 'condition', :expression => 'true', :within => [1,1], :statements => [
               {:type => 'selection', :dimensions => ['action'], :fields => [:name => 'count', :expression => 'count()']}
             ]}
           ]}
