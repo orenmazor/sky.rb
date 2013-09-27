@@ -81,9 +81,7 @@ class SkyDB
     # Retrieves a single table from the server.
     def get_table(name, options={})
       raise ArgumentError.new("Table name required") if name.nil?
-      data = send(:get, "/tables/#{name}")
-      table = Table.new(:client => self).from_hash(data)
-      return table
+      Table.new(:name => name, :client => self)
     end
 
     # Creates a table on the server.
